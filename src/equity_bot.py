@@ -236,8 +236,6 @@ def build_providers_config(creds: dict) -> dict:
                 {"name": "google/gemma-2-9b-it:free", "rpm": 20, "priority": 1, "ctx": 8192},
                 {"name": "meta-llama/llama-3.2-3b-instruct:free", "rpm": 20, "priority": 2, "ctx": 8192},
                 {"name": "arcee-ai/trinity-large-preview:free", "rpm": 20, "priority": 3, "ctx": 16384, "reasoning": True},
-                {"name": "qwen/qwen-2.5-7b-instruct:free", "rpm": 20, "priority": 4, "ctx": 32768},
-                {"name": "microsoft/phi-3.5-mini-instruct:free", "rpm": 20, "priority": 5, "ctx": 128000},
             ],
             "headers": lambda key: {
                 "Authorization": f"Bearer {key}",
@@ -254,8 +252,6 @@ def build_providers_config(creds: dict) -> dict:
             "api_key": creds["nvidia"],
             "models": [
                 {"name": "meta/llama-3.1-8b-instruct", "rpm": 30, "priority": 1, "ctx": 8192},
-                {"name": "google/gemma-2-9b-it", "rpm": 25, "priority": 2, "ctx": 8192},
-                {"name": "mistralai/mistral-7b-instruct-v0.2", "rpm": 20, "priority": 3, "ctx": 32768},
             ],
             "headers": lambda key: {
                 "Authorization": f"Bearer {key}",
@@ -270,24 +266,6 @@ def build_providers_config(creds: dict) -> dict:
             "api_key": creds["groq"],
             "models": [
                 {"name": "llama3-8b-8192", "rpm": 30, "priority": 1, "ctx": 8192},
-                {"name": "llama-3.1-8b-instant", "rpm": 30, "priority": 2, "ctx": 8192},
-                {"name": "gemma2-9b-it", "rpm": 25, "priority": 3, "ctx": 8192},
-                {"name": "mixtral-8x7b-32768", "rpm": 20, "priority": 4, "ctx": 32768},
-            ],
-            "headers": lambda key: {
-                "Authorization": f"Bearer {key}",
-                "Content-Type": "application/json"
-            }
-        }
-    
-    if creds.get("github"):
-        providers["github"] = {
-            "enabled": True,
-            "base_url": "https://models.inference.ai.azure.com",
-            "api_key": creds["github"],
-            "models": [
-                {"name": "Phi-3.5-mini-instruct", "rpm": 10, "priority": 1, "ctx": 128000},
-                {"name": "Mistral-Nemo-12B-Instruct", "rpm": 8, "priority": 2, "ctx": 128000},
             ],
             "headers": lambda key: {
                 "Authorization": f"Bearer {key}",
