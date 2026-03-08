@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
 # ════════════════════════════════════════════════════════════════════════════
 # 🤖 Equity Bot - Main Entry Point
-# 📁 Location: src/equity_bot.py
 # ════════════════════════════════════════════════════════════════════════════
-# ────────────────────────────────────────────────────────────────────────────
-# 🔧 PATH FIX: Enable imports from src/ directory when running from repo root
-# ────────────────────────────────────────────────────────────────────────────
+
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
-# ────────────────────────────────────────────────────────────────────────────
-
-# ════════════════════════════════════════════════════════════════════════════
-# 📦 STANDARD IMPORTS
-# ════════════════════════════════════════════════════════════════════════════
 
 import os
 import json
@@ -24,10 +16,6 @@ import asyncio
 import requests
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🔐 CREDENTIAL LOADER
-# ════════════════════════════════════════════════════════════════════════════
 
 def load_credentials():
     """Load credentials from environment variables (GitHub Secrets)"""
@@ -70,32 +58,12 @@ def load_credentials():
     
     return creds
 
-
-# ════════════════════════════════════════════════════════════════════════════
-# 📦 IMPORTS - Local modules
-# ════════════════════════════════════════════════════════════════════════════
-
 from config import (
-    SOURCE_CHANNELS,
-    OUTPUT_GROUP_ID,
-    HOURS_AGO,
-    MAX_MESSAGES_PER_CHANNEL,
-    DOWNLOAD_FILES,
-    VALID_EXTENSIONS,
-    FILES_TO_ANALYZE,
-    MAX_PAGES_PER_FILE,
-    CHUNK_SIZE_CHARS,
-    ENABLE_REASONING,
-    MAX_RETRIES,
-    RATE_LIMIT_BACKOFF,
-    SAVE_TO_DRIVE,
-    DRIVE_FOLDER_ID,
-    DOWNLOAD_DIR,
-    CACHE_DIR,
-    KNOWLEDGE_CACHE_FILE,
-    MAX_KNOWLEDGE_ENTRIES,
-    RUNNING_IN_GITHUB,
-    validate_config,
+    SOURCE_CHANNELS, OUTPUT_GROUP_ID, HOURS_AGO, MAX_MESSAGES_PER_CHANNEL,
+    DOWNLOAD_FILES, VALID_EXTENSIONS, FILES_TO_ANALYZE, MAX_PAGES_PER_FILE,
+    CHUNK_SIZE_CHARS, ENABLE_REASONING, MAX_RETRIES, RATE_LIMIT_BACKOFF,
+    SAVE_TO_DRIVE, DRIVE_FOLDER_ID, DOWNLOAD_DIR, CACHE_DIR,
+    KNOWLEDGE_CACHE_FILE, MAX_KNOWLEDGE_ENTRIES, RUNNING_IN_GITHUB, validate_config,
 )
 
 from utils.pdf_extractor import extract_text_from_pdf, chunk_text_smart
@@ -106,10 +74,6 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 import io
 
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🧠 GOOGLE DRIVE SERVICE
-# ════════════════════════════════════════════════════════════════════════════
 
 class DriveService:
     def __init__(self, service_account_json: str, folder_id: str):
@@ -151,10 +115,6 @@ class DriveService:
             print(f"⚠️ Drive upload failed: {e}")
             return None
 
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🧠 KNOWLEDGE CACHE
-# ════════════════════════════════════════════════════════════════════════════
 
 class KnowledgeCache:
     def __init__(self, cache_path: Path, max_entries: int = 25):
@@ -220,10 +180,6 @@ class KnowledgeCache:
         return "\n".join(parts).strip()
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# 🧠 MULTI-PROVIDER CONFIGURATION
-# ════════════════════════════════════════════════════════════════════════════
-
 def build_providers_config(creds: dict) -> dict:
     providers = {}
     
@@ -276,10 +232,6 @@ def build_providers_config(creds: dict) -> dict:
     return providers
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# 🧠 GOD-MODE PROMPT
-# ════════════════════════════════════════════════════════════════════════════
-
 GOD_PROMPT = """
 🔮 ROLE: Autonomous Equity Oracle. MAX SIGNAL, ZERO NOISE.
 
@@ -309,10 +261,6 @@ GOD_PROMPT = """
 🔮 End: "Confidence: X%"
 """
 
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🧠 MODEL ROUTER
-# ════════════════════════════════════════════════════════════════════════════
 
 class Router:
     def __init__(self, providers: dict):
@@ -377,10 +325,6 @@ class Router:
     def stats(self) -> dict:
         return {pid: {"requests": u["req"], "errors": u["err"]} for pid, u in self.usage.items()}
 
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🧠 ANALYZER
-# ════════════════════════════════════════════════════════════════════════════
 
 class Analyzer:
     def __init__(self, router: Router, cache: KnowledgeCache = None, drive: DriveService = None):
@@ -593,10 +537,6 @@ Remove duplicates. Highlight the 3 most important insights.
         return chunk_analyses[0]
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# 🚀 MAIN PIPELINE
-# ════════════════════════════════════════════════════════════════════════════
-
 async def run_pipeline():
     start_time = datetime.now()
     print(f"\n{'='*80}")
@@ -721,10 +661,6 @@ async def run_pipeline():
         
         return True
 
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🏁 ENTRY POINT
-# ════════════════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
     try:
