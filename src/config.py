@@ -1,135 +1,132 @@
-# src/config.py
-# ════════════════════════════════════════════════════════════════════════════
-# ⚙️ Bot Configuration - Channel IDs, Limits, Settings
-# ════════════════════════════════════════════════════════════════════════════
+# src/utils/telegram_client.py
+"""Modular Telegram client for fetching and sending messages"""
 
-import os
+import asyncio
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from datetime import timedelta
+from typing import Optional
 
-# ════════════════════════════════════════════════════════════════════════════
-# 📺 Telegram Channel Configuration (YOUR IDs)
-# ════════════════════════════════════════════════════════════════════════════
-
-# 📥 Source Channels: Where to FETCH reports FROM
-SOURCE_CHANNELS = [
-    {
-        "id": -1001588470529,      # ← Your Channel Alpha ID
-        "name": "Channel Alpha",    # ← Friendly name for logging
-    },
-    {
-        "id": -1003025504126,      # ← Your Equity Research Reports ID
-        "name": "Equity Research Reports",
-    },
-    # ➕ Add more channels here as needed:
-    # {"id": -100xxxxxxxxx, "name": "Another Channel"},
-]
-
-# 📤 Output Group: Where to SEND analysis TO
-OUTPUT_GROUP_ID = -5205208069  # ← Your target group ID
+from telethon import TelegramClient
+from telethon.sessions import StringSession
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# ⏰ Fetch Settings
-# ════════════════════════════════════════════════════════════════════════════
-
-# Lookback window: Fetch messages from last N hours
-HOURS_AGO = int(os.getenv("HOURS_AGO", "50"))
-
-# Max messages to scan per channel (prevents runaway API calls)
-MAX_MESSAGES_PER_CHANNEL = int(os.getenv("MAX_MESSAGES_PER_CHANNEL", "150"))
-
-# Enable file downloads (set False to only fetch metadata)
-DOWNLOAD_FILES = os.getenv("DOWNLOAD_FILES", "true").lower() == "true"
-
-# Valid file extensions to process
-VALID_EXTENSIONS = [".pdf", ".docx", ".xlsx", ".txt"]
-
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🧠 Analysis Settings (Free-Tier Optimized)
-# ════════════════════════════════════════════════════════════════════════════
-
-# Max files to analyze per run (conservative for free tiers)
-FILES_TO_ANALYZE = int(os.getenv("FILES_TO_ANALYZE", "2"))
-
-# Max pages to extract per PDF (reduces token usage)
-MAX_PAGES_PER_FILE = int(os.getenv("MAX_PAGES_PER_FILE", "5"))
-
-# Text chunk size for large documents (chars)
-CHUNK_SIZE_CHARS = int(os.getenv("CHUNK_SIZE_CHARS", "4000"))
-
-# Enable reasoning mode (uses more tokens, slower)
-ENABLE_REASONING = os.getenv("ENABLE_REASONING", "false").lower() == "true"
-
-# Max retry attempts per API call
-MAX_RETRIES = 3
-
-# Backoff seconds when rate limited
-RATE_LIMIT_BACKOFF = int(os.getenv("RATE_LIMIT_BACKOFF", "10"))
-
-
-# ════════════════════════════════════════════════════════════════════════════
-# 💾 Storage & Cache Settings
-# ════════════════════════════════════════════════════════════════════════════
-
-# Save analysis outputs to Google Drive
-SAVE_TO_DRIVE = os.getenv("SAVE_TO_DRIVE", "true").lower() == "true"
-
-# Target Drive folder ID (from URL: drive.google.com/drive/folders/XXX)
-DRIVE_FOLDER_ID = os.getenv("DRIVE_FOLDER_ID", "")
-
-# Local cache file path (for knowledge accumulation)
-CACHE_DIR = Path(os.getenv("CACHE_DIR", "/tmp/equity-bot/cache"))
-KNOWLEDGE_CACHE_FILE = CACHE_DIR / "knowledge_cache.json"
-MAX_KNOWLEDGE_ENTRIES = int(os.getenv("MAX_KNOWLEDGE_ENTRIES", "25"))
-
-# Local download directory for fetched files
-DOWNLOAD_DIR = Path(os.getenv("DOWNLOAD_DIR", "/tmp/equity-bot/downloads"))
-
-
-# ════════════════════════════════════════════════════════════════════════════
-# 🔄 Runtime Mode Detection
-# ════════════════════════════════════════════════════════════════════════════
-
-# Detect if running in GitHub Actions vs local
-RUNNING_IN_GITHUB = os.getenv("GITHUB_ACTIONS", "false").lower() == "true"
-
-# Auto-adjust settings for GitHub Actions (conservative)
-if RUNNING_IN_GITHUB:
-    FILES_TO_ANALYZE = min(FILES_TO_ANALYZE, 2)  # Cap at 2 for cron runs
-    MAX_PAGES_PER_FILE = min(MAX_PAGES_PER_FILE, 5)
-    ENABLE_REASONING = False  # Disable heavy reasoning on scheduled runs
-    print(f"🔧 GitHub Actions mode: conservative settings applied")
-
-
-# ════════════════════════════════════════════════════════════════════════════
-# 📋 Validation Helper
-# ════════════════════════════════════════════════════════════════════════════
-
-def validate_config():
-    """Check required config values at startup"""
-    errors = []
+class TelegramBot:
+    """Telegram client wrapper for equity bot"""
     
-    if not SOURCE_CHANNELS:
-        errors.append("SOURCE_CHANNELS is empty — add at least one channel ID")
+    def __init__(self, session: str, api_id: str, api_hash: str, 
+                 download_dir: Optional[Path] = None):
+        self.session = session
+        self.api_id = int(api_id)
+        self.api_hash = api_hash
+        self.download_dir = download_dir or Path("/tmp/equity-bot/downloads")
+        self.download_dir.mkdir(parents=True, exist_ok=True)
+        self._client: Optional[TelegramClient] = None
     
-    for ch in SOURCE_CHANNELS:
-        if not isinstance(ch.get("id"), int):
-            errors.append(f"Channel ID must be integer: {ch}")
+    async def __aenter__(self):
+        self._client = TelegramClient(
+            StringSession(self.session),
+            self.api_id,
+            self.api_hash
+        )
+        await self._client.start()
+        return self
     
-    if not isinstance(OUTPUT_GROUP_ID, int):
-        errors.append(f"OUTPUT_GROUP_ID must be integer: {OUTPUT_GROUP_ID}")
+    async def __aexit__(self, *args):
+        if self._client:
+            await self._client.disconnect()
     
-    if SAVE_TO_DRIVE and not DRIVE_FOLDER_ID:
-        errors.append("SAVE_TO_DRIVE=True but DRIVE_FOLDER_ID is empty")
+    async def fetch_files(
+        self,
+        channels: list[dict],
+        hours_ago: int = 50,
+        max_messages: int = 150,
+        extensions: list[str] = None
+    ) -> list[dict]:
+        """Fetch files from Telegram channels."""
+        extensions = extensions or ['.pdf', '.docx', '.xlsx', '.txt']
+        all_files = []
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours_ago)
+        
+        for ch in channels:
+            cid = ch['id']
+            cname = ch.get('name', f"Channel_{cid}")
+            print(f"📺 Fetching: {cname}")
+            
+            try:
+                channel = await self._client.get_entity(cid)
+                files_found = 0
+                
+                async for msg in self._client.iter_messages(channel, limit=max_messages):
+                    if not msg.date:
+                        continue
+                    msg_utc = msg.date if msg.date.tzinfo else msg.date.replace(tzinfo=timezone.utc)
+                    if msg_utc < cutoff:
+                        continue
+                    if msg.file and msg.file.name:
+                        fname = msg.file.name.lower()
+                        if any(fname.endswith(ext) for ext in extensions):
+                            file_info = {
+                                'name': msg.file.name,
+                                'size_mb': round(msg.file.size / (1024*1024), 2),
+                                'date': msg.date,
+                                'date_utc': msg_utc,
+                                'path': None,
+                                'channel_name': cname,
+                                'channel_id': cid
+                            }
+                            all_files.append(file_info)
+                            files_found += 1
+                            print(f"  📎 {file_info['name']} ({file_info['size_mb']} MB)")
+                            if self.download_dir:
+                                try:
+                                    file_info['path'] = await msg.download_media(
+                                        file=self.download_dir / msg.file.name
+                                    )
+                                except Exception as e:
+                                    print(f"    ❌ Download error: {e}")
+                
+                print(f"✅ {cname}: {files_found} files")
+            except Exception as e:
+                print(f"❌ Error fetching {cname}: {e}")
+                continue
+        
+        return sorted(all_files, key=lambda x: x['date_utc'], reverse=True)
     
-    if errors:
-        print("❌ Configuration errors:")
-        for e in errors:
-            print(f"  • {e}")
-        return False
-    
-    print(f"✅ Config validated: {len(SOURCE_CHANNELS)} source channels, output: {OUTPUT_GROUP_ID}")
-    return True
-
+    async def send_message(
+        self,
+        group_id: int,
+        text: str,
+        parse_mode: str = 'md'
+    ) -> bool:
+        """Send formatted message to Telegram group."""
+        try:
+            entity = None
+            for test_id in [group_id, int(f"-100{abs(group_id)}"), str(group_id)]:
+                try:
+                    entity = await self._client.get_entity(test_id)
+                    break
+                except:
+                    continue
+            
+            if not entity:
+                print(f"❌ Could not resolve group {group_id}")
+                return False
+            
+            max_len = 3800
+            parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+            
+            for i, part in enumerate(parts, 1):
+                prefix = f"📊 Part {i}/{len(parts)}\n\n" if len(parts) > 1 else ""
+                await self._client.send_message(
+                    entity,
+                    prefix + part,
+                    parse_mode=parse_mode,
+                    link_preview=False
+                )
+                print(f"📤 Sent part {i}/{len(parts)}")
+                await asyncio.sleep(1.5)
+            
+            return True
+        except Exception as e:
+            print(f"⚠️ Send failed: {e}")
+            return False
