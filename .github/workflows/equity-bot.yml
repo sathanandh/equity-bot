@@ -3,7 +3,7 @@
 # ✅ It passes secrets → env vars → your Python code
 # ✅ DO NOT REMOVE — this is the scheduler/runner config
 
-name: 🚀 Equity Bot - Scheduled Analysis
+name: Equity Bot - Scheduled Analysis
 
 on:
   schedule:
