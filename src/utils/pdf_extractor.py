@@ -10,16 +10,7 @@ def extract_text_from_pdf(
     pdf_path: str | Path,
     max_pages: Optional[int] = None
 ) -> str:
-    """
-    Extract clean text from PDF file.
-    
-    Args:
-        pdf_path: Path to PDF file
-        max_pages: Limit extraction to N pages (None = all)
-    
-    Returns:
-        Extracted text string (empty string on error)
-    """
+    """Extract clean text from PDF file."""
     try:
         import PyPDF2
         with open(pdf_path, 'rb') as f:
@@ -36,7 +27,7 @@ def extract_text_from_pdf(
                         text_parts.append(page_text)
             return " ".join(text_parts)
     except ImportError:
-        print("⚠️ PyPDF2 not installed - install with: pip install PyPDF2")
+        print("⚠️ PyPDF2 not installed")
         return ""
     except Exception as e:
         print(f"⚠️ PDF extraction error: {e}")
@@ -48,17 +39,7 @@ def chunk_text_smart(
     chunk_size: int = 6000,
     overlap: int = 300
 ) -> list[str]:
-    """
-    Split text into chunks preserving semantic boundaries.
-    
-    Args:
-        text: Input text to chunk
-        chunk_size: Target characters per chunk
-        overlap: Characters to overlap between chunks
-    
-    Returns:
-        List of text chunks
-    """
+    """Split text into chunks preserving semantic boundaries."""
     if len(text) <= chunk_size:
         return [text]
     
