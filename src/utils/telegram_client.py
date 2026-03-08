@@ -2,7 +2,6 @@
 """Modular Telegram client for fetching and sending messages"""
 
 import asyncio
-import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -65,9 +64,11 @@ class TelegramBot:
                 async for msg in self._client.iter_messages(channel, limit=max_messages):
                     if not msg.date:
                         continue
+                    
                     msg_utc = msg.date if msg.date.tzinfo else msg.date.replace(tzinfo=timezone.utc)
                     if msg_utc < cutoff:
                         continue
+                    
                     if msg.file and msg.file.name:
                         fname = msg.file.name.lower()
                         if any(fname.endswith(ext) for ext in extensions):
@@ -83,6 +84,7 @@ class TelegramBot:
                             all_files.append(file_info)
                             files_found += 1
                             print(f"  📎 {file_info['name']} ({file_info['size_mb']} MB)")
+                            
                             if self.download_dir:
                                 try:
                                     file_info['path'] = await msg.download_media(
@@ -98,61 +100,41 @@ class TelegramBot:
         
         return sorted(all_files, key=lambda x: x['date_utc'], reverse=True)
     
-   async def send_message(self, group_id: int, text: str, parse_mode: str = 'md') -> bool:
-    """Send formatted message to Telegram group."""
-    try:
-        print(f"\n📤 Sending to group {group_id}...")
-        print(f"🔍 Group ID type: {type(group_id)}")
-        
-        # Get bot info
-        me = await self._client.get_me()
-        print(f"🤖 Logged in as: {me.first_name} (@{me.username or 'no_username'})")
-        print(f"🤖 Is bot: {me.bot}")
-        
-        # Try multiple ID formats
-        entity = None
-        test_ids = [group_id, int(f"-100{abs(group_id)}"), str(group_id)]
-        
-        for test_id in test_ids:
-            try:
-                print(f"🔍 Trying ID: {test_id}")
-                entity = await self._client.get_entity(test_id)
-                print(f"✅ Resolved: {entity.title} (type: {type(entity).__name__})")
-                break
-            except Exception as e:
-                print(f"⚠️ Failed {test_id}: {type(e).__name__}")
-                continue
-        
-        if not entity:
-            print(f"❌ Could not resolve group {group_id}")
-            return False
-        
-        # Check permissions
+    async def send_message(
+        self,
+        group_id: int,
+        text: str,
+        parse_mode: str = 'md'
+    ) -> bool:
+        """Send formatted message to Telegram group."""
         try:
-            await self._client.get_permissions(entity)
-            print(f"✅ Have permissions in group")
+            entity = None
+            for test_id in [group_id, int(f"-100{abs(group_id)}"), str(group_id)]:
+                try:
+                    entity = await self._client.get_entity(test_id)
+                    break
+                except:
+                    continue
+            
+            if not entity:
+                print(f"❌ Could not resolve group {group_id}")
+                return False
+            
+            max_len = 3800
+            parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+            
+            for i, part in enumerate(parts, 1):
+                prefix = f"📊 Part {i}/{len(parts)}\n\n" if len(parts) > 1 else ""
+                await self._client.send_message(
+                    entity,
+                    prefix + part,
+                    parse_mode=parse_mode,
+                    link_preview=False
+                )
+                print(f"📤 Sent part {i}/{len(parts)}")
+                await asyncio.sleep(1.5)
+            
+            return True
         except Exception as e:
-            print(f"⚠️ Permission check failed: {e}")
-        
-        # Split and send
-        max_len = 3800
-        parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
-        print(f"📄 Message split into {len(parts)} part(s)")
-        
-        for i, part in enumerate(parts, 1):
-            prefix = f"📊 Part {i}/{len(parts)}\n\n" if len(parts) > 1 else ""
-            await self._client.send_message(
-                entity,
-                prefix + part,
-                parse_mode=parse_mode,
-                link_preview=False
-            )
-            print(f"📤 Sent part {i}/{len(parts)}")
-            await asyncio.sleep(1.5)
-        
-        return True
-    except Exception as e:
-        print(f"⚠️ Send failed: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+            print(f"⚠️ Send failed: {e}")
+            return False
