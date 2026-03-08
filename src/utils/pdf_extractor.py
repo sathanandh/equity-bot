@@ -1,6 +1,4 @@
-# src/utils/pdf_extractor.py
-"""Modular PDF text extraction for GitHub Actions environment"""
-
+# src/utils/pdf_extractor.py\n"""Modular PDF text extraction for GitHub Actions environment"""\n
 import re
 from pathlib import Path
 from typing import Optional
@@ -9,8 +7,7 @@ def extract_text_from_pdf(
     pdf_path: str | Path, 
     max_pages: Optional[int] = None
 ) -> str:
-    """
-    Extract clean text from PDF file.
+    """\n    Extract clean text from PDF file.
     
     Args:
         pdf_path: Path to PDF file
@@ -18,8 +15,7 @@ def extract_text_from_pdf(
     
     Returns:
         Extracted text string (empty string on error)
-    """
-    try:
+    """\n    try:
         import PyPDF2
         
         with open(pdf_path, 'rb') as f:
@@ -28,8 +24,7 @@ def extract_text_from_pdf(
             
             text_parts = []
             for page in pages:
-                page_text = page.extract_text() or ""
-                if page_text.strip():
+                page_text = page.extract_text() or ""\n                if page_text.strip():
                     # Clean common PDF artifacts
                     page_text = re.sub(r'Page \d+ of \d+', '', page_text)
                     page_text = re.sub(r'www\.\S+', '', page_text)
@@ -41,19 +36,16 @@ def extract_text_from_pdf(
             
     except ImportError:
         print("⚠️ PyPDF2 not installed - install with: pip install PyPDF2")
-        return ""
-    except Exception as e:
+        return ""\n    except Exception as e:
         print(f"⚠️ PDF extraction error: {e}")
-        return ""
-
+        return ""\n
 
 def chunk_text_smart(
     text: str, 
     chunk_size: int = 6000, 
     overlap: int = 300
 ) -> list[str]:
-    """
-    Split text into chunks preserving semantic boundaries.
+    """\n    Split text into chunks preserving semantic boundaries.
     
     Args:
         text: Input text to chunk
@@ -62,8 +54,7 @@ def chunk_text_smart(
     
     Returns:
         List of text chunks
-    """
-    if len(text) <= chunk_size:
+    """\n    if len(text) <= chunk_size:
         return [text]
     
     chunks = []

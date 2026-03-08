@@ -1,6 +1,4 @@
-# src/utils/telegram_client.py
-"""Modular Telegram client for fetching and sending messages"""
-
+# src/utils/telegram_client.py\n"""Modular Telegram client for fetching and sending messages"""\n
 import asyncio
 import re
 from datetime import datetime, timedelta, timezone
@@ -12,8 +10,7 @@ from telethon.sessions import StringSession
 
 
 class TelegramBot:
-    """Telegram client wrapper for equity bot"""
-    
+    """Telegram client wrapper for equity bot"""\n    
     def __init__(
         self, 
         session: str, 
@@ -48,8 +45,7 @@ class TelegramBot:
         max_messages: int = 150,
         extensions: list[str] = None
     ) -> list[dict]:
-        """
-        Fetch files from Telegram channels.
+        """\n        Fetch files from Telegram channels.
         
         Args:
             channels: List of {"id": int, "name": str}
@@ -59,8 +55,7 @@ class TelegramBot:
         
         Returns:
             List of file info dicts
-        """
-        extensions = extensions or ['.pdf', '.docx', '.xlsx', '.txt']
+        """\n        extensions = extensions or ['.pdf', '.docx', '.xlsx', '.txt']
         all_files = []
         cutoff = datetime.now(timezone.utc) - timedelta(hours=hours_ago)
         
@@ -120,10 +115,8 @@ class TelegramBot:
         self,
         group_id: int,
         text: str,
-        parse_mode: str = 'md'
-    ) -> bool:
-        """
-        Send formatted message to Telegram group.
+        parse_mode: str = 'md'\n    ) -> bool:
+        """\n        Send formatted message to Telegram group.
         
         Args:
             group_id: Target group/channel ID
@@ -132,8 +125,7 @@ class TelegramBot:
         
         Returns:
             True if sent successfully
-        """
-        try:
+        """\n        try:
             # Try multiple ID formats for robustness
             entity = None
             for test_id in [group_id, int(f"-100{abs(group_id)}"), str(group_id)]:
@@ -152,8 +144,7 @@ class TelegramBot:
             parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
             
             for i, part in enumerate(parts, 1):
-                prefix = f"📊 Part {i}/{len(parts)}\n\n" if len(parts) > 1 else ""
-                await self._client.send_message(
+                prefix = f"📊 Part {i}/{len(parts)}\n\n" if len(parts) > 1 else ""\n                await self._client.send_message(
                     entity,
                     prefix + part,
                     parse_mode=parse_mode,

@@ -1326,38 +1326,6 @@ def validate_config():
     return True
 
 
-# test_channels.py (optional debug script)
-import asyncio
-from telethon import TelegramClient
-from telethon.sessions import StringSession
-from config import SOURCE_CHANNELS, OUTPUT_GROUP_ID, TELEGRAM_CREDS
-
-async def test():
-    client = TelegramClient(
-        StringSession(TELEGRAM_CREDS["session"]),
-        TELEGRAM_CREDS["api_id"],
-        TELEGRAM_CREDS["api_hash"]
-    )
-    await client.start()
-    
-    print("🔍 Testing channel access...")
-    for ch in SOURCE_CHANNELS:
-        try:
-            entity = await client.get_entity(ch["id"])
-            print(f"✅ {ch['name']}: {entity.title} (ID: {ch['id']})")
-        except Exception as e:
-            print(f"❌ {ch['name']}: {e}")
-    
-    try:
-        entity = await client.get_entity(OUTPUT_GROUP_ID)
-        print(f"✅ Output group: {entity.title} (ID: {OUTPUT_GROUP_ID})")
-    except Exception as e:
-        print(f"❌ Output group: {e}")
-    
-    await client.disconnect()
-
-if __name__ == "__main__":
-    asyncio.run(test())
 
 ==========================================================================================
 FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\src\equity_bot.py
@@ -1368,9 +1336,19 @@ FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\src\equity_bot.py
 # 🤖 Equity Bot - Main Entry Point
 # 📁 Location: src/equity_bot.py
 # ════════════════════════════════════════════════════════════════════════════
+# ────────────────────────────────────────────────────────────────────────────
+# 🔧 PATH FIX: Enable imports from src/ directory when running from repo root
+# ────────────────────────────────────────────────────────────────────────────
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+# ────────────────────────────────────────────────────────────────────────────
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📦 STANDARD IMPORTS
+# ════════════════════════════════════════════════════════════════════════════
 
 import os
-import sys
 import json
 import re
 import time

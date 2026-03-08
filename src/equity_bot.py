@@ -30,8 +30,7 @@ from pathlib import Path
 # ════════════════════════════════════════════════════════════════════════════
 
 def load_credentials():
-    """Load credentials from environment variables (GitHub Secrets)"""
-    creds = {
+    """Load credentials from environment variables (GitHub Secrets)"""\n    creds = {
         "openrouter": os.getenv("OPENROUTER_API_KEY"),
         "nvidia": os.getenv("NVIDIA_API_KEY"),
         "groq": os.getenv("GROQ_KEY"),
@@ -143,8 +142,7 @@ class DriveService:
             file = self.service.files().create(
                 body=file_metadata,
                 media_body=media,
-                fields="id,webViewLink"
-            ).execute()
+                fields="id,webViewLink"\n            ).execute()
             print(f"💾 Uploaded: {file.get('webViewLink')}")
             return file.get("id")
         except Exception as e:
@@ -196,8 +194,7 @@ class KnowledgeCache:
     def get_context(self, keywords: list = None, max_entries: int = 5, 
                    channel_filter: str = None) -> str:
         if not self.data['entries']:
-            return ""
-        entries = self.data['entries']
+            return ""\n        entries = self.data['entries']
         if channel_filter:
             entries = [e for e in entries if e.get('channel') == channel_filter]
         if keywords:
@@ -213,8 +210,7 @@ class KnowledgeCache:
         selected = entries[-max_entries:] if entries else self.data['entries'][-max_entries:]
         parts = []
         for entry in selected:
-            tag = f"[{entry.get('channel', '?')}]" if entry.get('channel') else ""
-            parts.append(f"### {tag} {entry['filename']} ({entry['timestamp'][:10]})")
+            tag = f"[{entry.get('channel', '?')}]" if entry.get('channel') else ""\n            parts.append(f"### {tag} {entry['filename']} ({entry['timestamp'][:10]})")
             parts.extend([f"• {ins}" for ins in entry['insights']])
             parts.append("")
         return "\n".join(parts).strip()
@@ -259,8 +255,7 @@ def build_providers_config(creds: dict) -> dict:
             ],
             "headers": lambda key: {
                 "Authorization": f"Bearer {key}",
-                "Content-Type": "application/json"
-            }
+                "Content-Type": "application/json"\n            }
         }
     
     if creds.get("groq"):
@@ -276,8 +271,7 @@ def build_providers_config(creds: dict) -> dict:
             ],
             "headers": lambda key: {
                 "Authorization": f"Bearer {key}",
-                "Content-Type": "application/json"
-            }
+                "Content-Type": "application/json"\n            }
         }
     
     if creds.get("github"):
@@ -291,8 +285,7 @@ def build_providers_config(creds: dict) -> dict:
             ],
             "headers": lambda key: {
                 "Authorization": f"Bearer {key}",
-                "Content-Type": "application/json"
-            }
+                "Content-Type": "application/json"\n            }
         }
     
     return providers
@@ -302,8 +295,7 @@ def build_providers_config(creds: dict) -> dict:
 # 🧠 GOD-MODE PROMPT
 # ════════════════════════════════════════════════════════════════════════════
 
-GOD_PROMPT = """
-🔮 ROLE: Autonomous Equity Oracle. MAX SIGNAL, ZERO NOISE.
+GOD_PROMPT = """\n🔮 ROLE: Autonomous Equity Oracle. MAX SIGNAL, ZERO NOISE.
 
 🎯 FRAMEWORK:
 1. SURFACE: Claims/numbers with [DATA]/[LOGIC]/[OPINION] tags
@@ -328,9 +320,7 @@ GOD_PROMPT = """
 ## 🚀 Actionable • View: [Long/Short/Neutral] + [Conviction%] • Triggers • Monitor: [3 metrics]
 ## 🔄 Self-Correction • Assumptions • Uncertainty
 
-🔮 End: "Confidence: X%"
-"""
-
+🔮 End: "Confidence: X%"\n"""\n
 
 # ════════════════════════════════════════════════════════════════════════════
 # 🧠 MODEL ROUTER
@@ -354,8 +344,7 @@ class Router:
             for model in cfg["models"]:
                 if reasoning and not model.get("reasoning"):
                     continue
-                model_key = f"{pid}:{model['name']}"
-                if model_key in self.broken_models:
+                model_key = f"{pid}:{model['name']}"\n                if model_key in self.broken_models:
                     continue
                 score = model.get("priority", 99)
                 if model_key in self.perf and self.perf[model_key].get("success_rate", 1) > 0.9:
@@ -379,8 +368,7 @@ class Router:
         return selected
     
     def record(self, pid: str, model: str, success: bool, latency_ms: float = None, error_code: str = None):
-        key = f"{pid}:{model}"
-        if key not in self.perf:
+        key = f"{pid}:{model}"\n        if key not in self.perf:
             self.perf[key] = {"total": 0, "success": 0, "latencies": []}
         stats = self.perf[key]
         stats["total"] += 1
@@ -417,8 +405,7 @@ class Analyzer:
         pid = model_cfg["provider"]
         model = model_cfg["model"]
         cfg = model_cfg["cfg"]
-        url = f"{cfg['base_url']}/chat/completions"
-        payload = {
+        url = f"{cfg['base_url']}/chat/completions"\n        payload = {
             "model": model,
             "messages": messages,
             "temperature": temperature,
@@ -469,21 +456,17 @@ class Analyzer:
     def analyze_document(self, text: str, filename: str, context: str = "", 
                         channel: str = "", task_type: str = "analysis") -> dict | None:
         for attempt in range(MAX_RETRIES):
-            prefer_reasoning = ENABLE_REASONING and task_type == "deep_analysis"
-            model_cfg = self.router.pick(task_type, reasoning=prefer_reasoning)
+            prefer_reasoning = ENABLE_REASONING and task_type == "deep_analysis"\n            model_cfg = self.router.pick(task_type, reasoning=prefer_reasoning)
             if not model_cfg:
                 return None
             max_chars = int(model_cfg["ctx"] * 3.5)
             safe_text = text[:max_chars] + ("..." if len(text) > max_chars else "")
-            context_block = f"\n\n🧠 PAST INSIGHTS:\n{context}" if context else ""
-            channel_tag = f"[{channel}]" if channel else ""
-            user_prompt = f"""DOCUMENT: {filename} {channel_tag}
+            context_block = f"\n\n🧠 PAST INSIGHTS:\n{context}" if context else ""\n            channel_tag = f"[{channel}]" if channel else ""\n            user_prompt = f"""DOCUMENT: {filename} {channel_tag}
 CONTENT:
 {safe_text}
 {context_block}
 
-TASK: Apply the god-mode framework. Output ONLY the structured format. No preamble."""
-            messages = [
+TASK: Apply the god-mode framework. Output ONLY the structured format. No preamble."""\n            messages = [
                 {"role": "system", "content": GOD_PROMPT},
                 {"role": "user", "content": user_prompt}
             ]
@@ -516,8 +499,7 @@ TASK: Apply the god-mode framework. Output ONLY the structured format. No preamb
         if not text.startswith("🔹"):
             text = "🔹 " + text
         if len(text) > 3800:
-            text = text[:3700] + "\n\n*...continued in attached file*"
-        return text.strip()
+            text = text[:3700] + "\n\n*...continued in attached file*"\n        return text.strip()
     
     def analyze_multiple_files(self, files_data: list) -> list:
         print(f"\n🚀 ANALYZING {len(files_data)} files")
@@ -532,8 +514,7 @@ TASK: Apply the god-mode framework. Output ONLY the structured format. No preamb
                 keywords, 
                 max_entries=3, 
                 channel_filter=channel_name
-            ) if self.cache else ""
-            if len(file_data['text']) > CHUNK_SIZE_CHARS:
+            ) if self.cache else ""\n            if len(file_data['text']) > CHUNK_SIZE_CHARS:
                 print(f"⚠️ Chunking ({len(file_data['text']):,} chars)...")
                 chunks = chunk_text_smart(file_data['text'], CHUNK_SIZE_CHARS)
                 print(f"✅ Split into {len(chunks)} chunks")
@@ -545,8 +526,7 @@ TASK: Apply the god-mode framework. Output ONLY the structured format. No preamb
                         f"{file_data['filename']} [Part {j}]",
                         past_context if j == 1 else "",
                         channel_name,
-                        task_type="chunk_analysis"
-                    )
+                        task_type="chunk_analysis"\n                    )
                     if chunk_result:
                         chunk_analyses.append(chunk_result)
                 if chunk_analyses:
@@ -565,8 +545,7 @@ TASK: Apply the god-mode framework. Output ONLY the structured format. No preamb
                     file_data['filename'],
                     past_context,
                     channel_name,
-                    task_type="deep_analysis"
-                )
+                    task_type="deep_analysis"\n                )
                 if result:
                     results.append({
                         'filename': file_data['filename'],
@@ -595,8 +574,7 @@ TASK: Apply the god-mode framework. Output ONLY the structured format. No preamb
         synthesis_prompt = f"""Synthesize these equity analysis fragments into one coherent report. 
 Remove duplicates. Highlight the 3 most important insights.
 
-{combined}"""
-        model_cfg = self.router.pick("synthesis", reasoning=False)
+{combined}"""\n        model_cfg = self.router.pick("synthesis", reasoning=False)
         if not model_cfg:
             print("⚠️ No model available for synthesis, returning first chunk")
             return chunk_analyses[0]
@@ -718,16 +696,12 @@ async def run_pipeline():
         for result in results:
             if not result.get('analysis'):
                 continue
-            channel_tag = f"[{result.get('channel', '?')}] " if result.get('channel') else ""
-            provider_tag = f"[{result['provider']}:{result['model']}] "
-            full_output = f"{channel_tag}{provider_tag}{result['analysis']}"
-            print(f"\n📤 Sending to Telegram group {OUTPUT_GROUP_ID}...")
+            channel_tag = f"[{result.get('channel', '?')}] " if result.get('channel') else ""\n            provider_tag = f"[{result['provider']}:{result['model']}] "\n            full_output = f"{channel_tag}{provider_tag}{result['analysis']}"\n            print(f"\n📤 Sending to Telegram group {OUTPUT_GROUP_ID}...")
             tg_success = await telegram.send_message(OUTPUT_GROUP_ID, full_output)
             if SAVE_TO_DRIVE and drive and tg_success:
                 timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
                 safe_name = re.sub(r'[^\w\s-]', '', result['filename'])[:35]
-                filename = f"Analysis_{result['provider']}_{safe_name}_{timestamp}.md"
-                print(f"💾 Uploading to Drive: {filename}")
+                filename = f"Analysis_{result['provider']}_{safe_name}_{timestamp}.md"\n                print(f"💾 Uploading to Drive: {filename}")
                 drive.upload_text(result['analysis'], filename)
         
         elapsed = (datetime.now() - start_time).total_seconds()
