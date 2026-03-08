@@ -302,7 +302,8 @@ def build_providers_config(creds: dict) -> dict:
 # 🧠 GOD-MODE PROMPT
 # ════════════════════════════════════════════════════════════════════════════
 
-GOD_PROMPT = """🔮 ROLE: Autonomous Equity Oracle. MAX SIGNAL, ZERO NOISE.
+GOD_PROMPT = """
+🔮 ROLE: Autonomous Equity Oracle. MAX SIGNAL, ZERO NOISE.
 
 🎯 FRAMEWORK:
 1. SURFACE: Claims/numbers with [DATA]/[LOGIC]/[OPINION] tags
@@ -329,6 +330,7 @@ GOD_PROMPT = """🔮 ROLE: Autonomous Equity Oracle. MAX SIGNAL, ZERO NOISE.
 
 🔮 End: "Confidence: X%"
 """
+
 
 # ════════════════════════════════════════════════════════════════════════════
 # 🧠 MODEL ROUTER
