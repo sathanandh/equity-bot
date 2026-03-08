@@ -15,7 +15,7 @@ SOURCE_CHANNELS = [
     {"id": -1003025504126, "name": "Equity Research Reports"},
 ]
 
-OUTPUT_GROUP_ID = -5205208069
+OUTPUT_GROUP_ID = -1003723569586
 
 # ════════════════════════════════════════════════════════════════════════════
 # ⏰ Fetch Settings
