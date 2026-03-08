@@ -1,0 +1,59 @@
+# .gitignore
+
+# 🔐 Secrets & credentials (NEVER commit)
+*.env
+!.env.example
+secrets*.env
+*.pem
+*.key
+
+# 📦 Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 🧪 Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# 🗂️ Local data & caches
+/tmp/
+*.log
+*.sqlite
+*.db
+knowledge_cache.json
+usage_tracker.json
+
+# 📁 Downloads (runtime artifacts)
+downloads/
+*.pdf
+*.docx
+*.xlsx
+
+# 🖥️ IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 🚀 GitHub Actions
+!.github/workflows/
+.github/workflows/*.log
