@@ -3,9 +3,19 @@
 # 🤖 Equity Bot - Main Entry Point
 # 📁 Location: src/equity_bot.py
 # ════════════════════════════════════════════════════════════════════════════
+# ────────────────────────────────────────────────────────────────────────────
+# 🔧 PATH FIX: Enable imports from src/ directory when running from repo root
+# ────────────────────────────────────────────────────────────────────────────
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+# ────────────────────────────────────────────────────────────────────────────
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📦 STANDARD IMPORTS
+# ════════════════════════════════════════════════════════════════════════════
 
 import os
-import sys
 import json
 import re
 import time

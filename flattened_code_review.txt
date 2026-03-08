@@ -1,0 +1,2477 @@
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\code_flattener.py
+==========================================================================================
+
+import os
+from pathlib import Path
+
+# File where flattened code will be written
+OUTPUT_FILE = "flattened_code_review.txt"
+
+# Directories to ignore
+IGNORE_DIRS = {
+    ".git",
+    "__pycache__",
+    "venv",
+    ".venv",
+    "node_modules",
+    ".idea",
+    ".vscode",
+    "dist",
+    "build"
+}
+
+# Code file extensions to include
+VALID_EXTENSIONS = {
+    ".py",
+    ".js",
+    ".ts",
+    ".java",
+    ".cpp",
+    ".c",
+    ".go",
+    ".rs",
+    ".html",
+    ".css",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".md",
+    ".txt"
+}
+
+
+def flatten_codebase(root_dir="."):
+    root = Path(root_dir).resolve()
+
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as out:
+
+        for file_path in root.rglob("*"):
+            if not file_path.is_file():
+                continue
+
+            # Skip ignored directories
+            if any(part in IGNORE_DIRS for part in file_path.parts):
+                continue
+
+            # Skip non-code files
+            if file_path.suffix.lower() not in VALID_EXTENSIONS:
+                continue
+
+            header = (
+                "\n"
+                + "=" * 90
+                + f"\nFILE: {file_path}\n"
+                + "=" * 90
+                + "\n\n"
+            )
+
+            out.write(header)
+
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    out.write(f.read())
+                    out.write("\n")
+            except Exception as e:
+                out.write(f"[Could not read file: {e}]\n")
+
+    print(f"\nFlattened code written to: {OUTPUT_FILE}")
+
+
+if __name__ == "__main__":
+    flatten_codebase()
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\flattened_code_review.txt
+==========================================================================================
+
+
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\README.md
+==========================================================================================
+
+\# 🚀 Equity Bot — Multi-Provider LLM Analysis
+
+
+
+> Automated equity research analysis using free-tier LLM providers, scheduled via GitHub Actions.
+
+
+
+\[!\[GitHub Actions](https://img.shields.io/badge/GitHub\_Actions-Enabled-2088FF?logo=githubactions)](https://github.com/features/actions)
+
+\[!\[Python 3.11+](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python)](https://www.python.org)
+
+\[!\[License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+
+
+---
+
+
+
+\## 📋 Table of Contents
+
+
+
+\- \[✨ Features](#-features)
+
+\- \[🏗️ Architecture](#️-architecture)
+
+\- \[📁 Repository Structure](#-repository-structure)
+
+\- \[⚙️ Quick Setup](#️-quick-setup)
+
+\- \[🔐 Secrets Configuration](#-secrets-configuration)
+
+\- \[🧪 Testing](#-testing)
+
+\- \[🕐 Cron Scheduling](#-cron-scheduling)
+
+\- \[⚙️ Configuration Options](#️-configuration-options)
+
+\- \[🛠️ Troubleshooting](#️-troubleshooting)
+
+\- \[⚠️ Security Notice](#️-security-notice)
+
+\- \[🤝 Contributing](#-contributing)
+
+\- \[📄 License](#-license)
+
+\- \[🔗 Resources](#-resources)
+
+
+
+---
+
+
+
+\## ✨ Features
+
+
+
+\### 🤖 Core Capabilities
+
+| Feature | Description |
+
+|---------|-------------|
+
+| \*\*Multi-Provider LLM Routing\*\* | Automatically routes requests across OpenRouter, NVIDIA NIM, Groq, and GitHub Models |
+
+| \*\*Smart Fallback Logic\*\* | Skips broken/deprecated models, falls back to available providers on 404/429 errors |
+
+| \*\*Free-Tier Optimized\*\* | Conservative defaults to respect rate limits and daily caps |
+
+| \*\*Cumulative Knowledge Cache\*\* | Stores insights across runs for context-aware analysis |
+
+
+
+\### 📥 Data Ingestion
+
+| Feature | Description |
+
+|---------|-------------|
+
+| \*\*Telegram Channel Fetching\*\* | Monitors multiple channels for PDF/DOCX/XLSX/TXT reports |
+
+| \*\*Smart File Prioritization\*\* | Scores files by keywords (`initiating`, `coverage`, `earnings`) + recency |
+
+| \*\*PDF Text Extraction\*\* | Clean extraction with noise removal (page numbers, URLs, whitespace) |
+
+| \*\*Chunked Processing\*\* | Splits large documents to fit model context windows |
+
+
+
+\### 🧠 Analysis Engine
+
+| Feature | Description |
+
+|---------|-------------|
+
+| \*\*God-Mode Prompt Framework\*\* | Structured output: thesis, facts, context, first-principles, risks, actionable insights |
+
+| \*\*Insight Tagging\*\* | Labels claims as `\[DATA]`, `\[LOGIC]`, `\[OPINION]`, or `\[EXTRAPOLATION]` |
+
+| \*\*Confidence Scoring\*\* | Model outputs conviction levels (H/M/L) + falsification tests |
+
+| \*\*Chunk Synthesis\*\* | Combines multi-part analyses into coherent final reports |
+
+
+
+\### 📤 Output \& Delivery
+
+| Feature | Description |
+
+|---------|-------------|
+
+| \*\*Telegram Formatting\*\* | Markdown-optimized output with emoji headers, part splitting for long messages |
+
+| \*\*Google Drive Backup\*\* | Saves full analysis reports to specified Drive folder |
+
+| \*\*Provider Attribution\*\* | Tags output with which model/provider generated the analysis |
+
+| \*\*Usage Tracking\*\* | Logs request counts and errors per provider for monitoring |
+
+
+
+\### ⚙️ Operational
+
+| Feature | Description |
+
+|---------|-------------|
+
+| \*\*GitHub Actions Cron\*\* | Scheduled runs at configurable intervals (default: 9 AM \& 6 PM UTC) |
+
+| \*\*Manual Trigger Support\*\* | Test runs via `workflow\_dispatch` with debug mode option |
+
+| \*\*Environment-Aware\*\* | Auto-adjusts settings for GitHub Actions vs local testing |
+
+| \*\*Graceful Error Handling\*\* | Continues processing on partial failures, logs artifacts for debugging |
+
+
+
+---
+
+
+
+\## 🏗️ Architecture
+
+
+
+```
+
+┌─────────────────────────────────────────────────────┐
+
+│                 GitHub Actions Runner                │
+
+│  (ubuntu-latest, Python 3.11, 2-core, 7GB RAM)      │
+
+└─────────────────┬───────────────────────────────────┘
+
+&nbsp;                 │
+
+&nbsp;   ┌─────────────▼─────────────┐
+
+&nbsp;   │   Workflow: equity-bot.yml │
+
+&nbsp;   │  • Cron trigger / Manual   │
+
+&nbsp;   │  • Install deps            │
+
+&nbsp;   │  • Inject secrets → env    │
+
+&nbsp;   │  • Execute: python src/   │
+
+&nbsp;   └─────────────┬─────────────┘
+
+&nbsp;                 │
+
+&nbsp;   ┌─────────────▼─────────────┐
+
+&nbsp;   │      Python Bot:          │
+
+&nbsp;   │    src/equity\_bot.py      │
+
+&nbsp;   ├───────────────────────────┤
+
+&nbsp;   │ • config.py               │
+
+&nbsp;   │   - Channel IDs           │
+
+&nbsp;   │   - Analysis settings     │
+
+&nbsp;   │ • utils/                  │
+
+&nbsp;   │   - pdf\_extractor.py      │
+
+&nbsp;   │   - telegram\_client.py    │
+
+&nbsp;   │ • Router + Analyzer       │
+
+&nbsp;   │   - Multi-provider logic  │
+
+&nbsp;   │   - Rate limit handling   │
+
+&nbsp;   └─────────────┬─────────────┘
+
+&nbsp;                 │
+
+&nbsp;   ┌─────────────▼─────────────┐
+
+&nbsp;   │        External APIs      │
+
+&nbsp;   ├───────────────────────────┤
+
+&nbsp;   │ • Telegram API (fetch)    │
+
+&nbsp;   │ • OpenRouter / NVIDIA /   │
+
+&nbsp;   │   Groq / GitHub (LLM)     │
+
+&nbsp;   │ • Google Drive API (save) │
+
+&nbsp;   └───────────────────────────┘
+
+```
+
+
+
+---
+
+
+
+\## 📁 Repository Structure
+
+
+
+```
+
+equity-bot/
+
+├── .github/
+
+│   └── workflows/
+
+│       └── equity-bot.yml          # 🕐 Cron scheduler + runner config
+
+├── src/
+
+│   ├── equity\_bot.py               # 🤖 Main bot entry point
+
+│   ├── config.py                   # ⚙️ Channel IDs + analysis settings
+
+│   ├── requirements.txt            # 📦 Python dependencies
+
+│   └── utils/
+
+│       ├── pdf\_extractor.py        # 📄 PDF text extraction + chunking
+
+│       └── telegram\_client.py      # 📱 Telegram fetch/send client
+
+├── .gitignore                      # 🔐 Exclude secrets, caches, artifacts
+
+├── secrets\_example.env             # 📝 Local testing template (DO NOT COMMIT)
+
+├── README.md                       # 📖 This file
+
+└── LICENSE                         # 📄 MIT License
+
+```
+
+
+
+---
+
+
+
+\## ⚙️ Quick Setup
+
+
+
+\### 1️⃣ Fork/Clone Repository
+
+```bash
+
+git clone https://github.com/YOUR\_USERNAME/equity-bot.git
+
+cd equity-bot
+
+```
+
+
+
+\### 2️⃣ Add GitHub Secrets (MANDATORY)
+
+
+
+Go to your repo → \*\*Settings\*\* → \*\*Secrets and variables\*\* → \*\*Actions\*\* → \*\*New repository secret\*\*
+
+
+
+| Secret Name | Description | Example Format |
+
+|------------|-------------|---------------|
+
+| `OPENROUTER\_API\_KEY` | OpenRouter API key | `sk-or-v1-abc123...` |
+
+| `NVIDIA\_API\_KEY` | NVIDIA NIM API key | `nvapi-abc123...` |
+
+| `GROQ\_KEY` | Groq API key | `gsk\_abc123...` |
+
+| `TELEGRAM\_STRING\_SESSION` | Telethon session string | `1BVtsOH4...` |
+
+| `TELEGRAM\_API\_ID` | Telegram API ID | `12345678` |
+
+| `TELEGRAM\_API\_HASH` | Telegram API hash | `abc123def456...` |
+
+| `GOOGLE\_SERVICE\_ACCOUNT\_JSON` | Google Drive service account (entire JSON) | `{"type":"service\_account",...}` |
+
+| `DRIVE\_FOLDER\_ID` | Target Google Drive folder ID | `1AbCdEfGhIjKlMnOpQrStUvWxYz` |
+
+
+
+> 💡 \*\*Getting Google Service Account JSON\*\*:
+
+> 1. Go to \[Google Cloud Console](https://console.cloud.google.com)
+
+> 2. Create project → Enable \*\*Google Drive API\*\*
+
+> 3. IAM \& Admin → Service Accounts → Create Service Account
+
+> 4. Generate JSON key → Copy \*\*entire content\*\* (including `{}`)
+
+> 5. Share your Drive folder with the service account email (`xxx@xxx.iam.gserviceaccount.com`)
+
+
+
+\### 3️⃣ Configure Channels (Optional)
+
+
+
+Edit `src/config.py` to add/remove source channels:
+
+
+
+```python
+
+SOURCE\_CHANNELS = \[
+
+&nbsp;   {"id": -1001588470529, "name": "Channel Alpha"},
+
+&nbsp;   {"id": -1003025504126, "name": "Equity Research Reports"},
+
+&nbsp;   # Add more: {"id": -100xxxxxxxxx, "name": "Another Channel"},
+
+]
+
+OUTPUT\_GROUP\_ID = -5205208069  # Where to send analysis
+
+```
+
+
+
+\### 4️⃣ Commit \& Push
+
+```bash
+
+git add .
+
+git commit -m "🚀 Initial setup: config + secrets"
+
+git push origin main
+
+```
+
+
+
+---
+
+
+
+\## 🔐 Secrets Configuration
+
+
+
+\### GitHub Secrets (Production)
+
+✅ Stored securely in GitHub, injected as environment variables at runtime  
+
+✅ Never committed to repository  
+
+✅ Accessible only to workflow runs  
+
+
+
+\### Local Testing (Optional)
+
+```bash
+
+\# 1. Copy template
+
+cp secrets\_example.env .env
+
+
+
+\# 2. Edit .env with your NEW (non-compromised) keys
+
+nano .env  # or use your preferred editor
+
+
+
+\# 3. Add .env to .gitignore (already included)
+
+\# 4. Test locally:
+
+cd src
+
+python equity\_bot.py
+
+```
+
+
+
+> ⚠️ \*\*Never commit `.env` or `secrets\_example.env` with real values\*\*
+
+
+
+---
+
+
+
+\## 🧪 Testing
+
+
+
+\### Manual Trigger (Recommended First Step)
+
+1\. Go to your repo → \*\*Actions\*\* tab
+
+2\. Select \*\*"🚀 Equity Bot - Scheduled Analysis"\*\*
+
+3\. Click \*\*"Run workflow"\*\* → \*\*"Run workflow"\*\* (green button)
+
+4\. Optional: Enable `debug\_mode: true` for verbose logging
+
+5\. Monitor live logs for progress/errors
+
+
+
+\### Expected Output (Success)
+
+```
+
+🚀 Starting Equity Bot at 2026-03-08T09:00:00Z
+
+🔄 Router initialized: \['openrouter', 'nvidia', 'groq']
+
+📥 STEP 1: Fetching files (last 50 hours)...
+
+📺 Equity Research Reports (ID: -1003025504126)
+
+✅ Connected: Equity Research Reports
+
+📎 \[14:09] Report\_TSLA\_Q4.pdf (2.4 MB)
+
+✅ Equity Research Reports: 4 files
+
+📊 Found 4 files
+
+📊 STEP 2: Selecting top 2 files...
+
+&nbsp;  1. \[Equity Research Reports] Report\_TSLA\_Q4.pdf (2.4 MB)
+
+&nbsp;  2. \[Equity Research Reports] Update\_IT\_Sector.pdf (1.1 MB)
+
+📄 STEP 3: Extracting text...
+
+&nbsp;  ✅ Report\_TSLA\_Q4.pdf: 21,238 chars
+
+&nbsp;  ✅ Update\_IT\_Sector.pdf: 18,710 chars
+
+🧠 STEP 4: Analyzing documents...
+
+🎯 openrouter → google/gemma-2-9b-it:free
+
+✅ Success (2,841 chars)
+
+📤 SENDING OUTPUT
+
+📤 Sending to Telegram group -5205208069...
+
+📤 Part 1/1
+
+💾 Uploaded: https://drive.google.com/file/d/xxx/view
+
+✅ PIPELINE COMPLETE
+
+📊 Results: 2/2 files analyzed
+
+🔄 Provider usage: {'openrouter': {'requests': 2, 'errors': 0}}
+
+⏱️ Runtime: 127.3 seconds
+
+```
+
+
+
+\### Verify Outputs
+
+| Destination | How to Check |
+
+|------------|-------------|
+
+| \*\*Telegram Group\*\* | Open group → Look for formatted analysis message |
+
+| \*\*Google Drive\*\* | Open folder → Check for `Analysis\_\*.md` files |
+
+| \*\*GitHub Actions Logs\*\* | Actions tab → Click run → View "Execute Equity Bot" step |
+
+| \*\*Failed Run Artifacts\*\* | Actions tab → Failed run → "equity-bot-logs-XXX" artifact |
+
+
+
+---
+
+
+
+\## 🕐 Cron Scheduling
+
+
+
+\### Default Schedule (UTC)
+
+```yaml
+
+schedule:
+
+&nbsp; - cron: '0 9,18 \* \* \*'  # 9 AM and 6 PM UTC daily
+
+```
+
+
+
+\### Cron Syntax Reference
+
+```
+
+┌───────────── minute (0-59)
+
+│ ┌───────────── hour (0-23)
+
+│ │ ┌───────────── day of month (1-31)
+
+│ │ │ ┌───────────── month (1-12)
+
+│ │ │ │ ┌───────────── day of week (0-6, Sun=0)
+
+│ │ │ │ │
+
+\* \* \* \* \*
+
+```
+
+
+
+\### Common Schedules (UTC)
+
+| Schedule | Cron Expression | Use Case |
+
+|----------|----------------|----------|
+
+| Every hour | `0 \* \* \* \*` | High-frequency monitoring (⚠️ may hit rate limits) |
+
+| Every 6 hours | `0 \*/6 \* \* \*` | Balanced coverage |
+
+| Twice daily | `0 9,18 \* \* \*` | ✅ Recommended default |
+
+| Weekdays only | `0 9 \* \* 1-5` | Market-days analysis |
+
+| Market hours (US) | `30 13 \* \* 1-5` | Post-market close (1:30 PM UTC = 9:30 AM ET) |
+
+
+
+\### 🌍 Convert to Your Timezone
+
+```bash
+
+\# Example: Run at 9 AM IST (UTC+5:30) = 3:30 AM UTC
+
+\# Cron: 30 3 \* \* \*
+
+
+
+\# Example: Run at 6 PM EST (UTC-5) = 11 PM UTC  
+
+\# Cron: 0 23 \* \* \*
+
+```
+
+
+
+> 💡 Use \[crontab.guru](https://crontab.guru) to validate \& convert schedules.
+
+
+
+\### Disable Cron (Testing Only)
+
+Comment out the `schedule` block:
+
+```yaml
+
+\# schedule:
+
+\#   - cron: '0 9,18 \* \* \*'
+
+```
+
+Bot will only run via manual `workflow\_dispatch` trigger.
+
+
+
+---
+
+
+
+\## ⚙️ Configuration Options
+
+
+
+Edit `src/config.py` to customize behavior:
+
+
+
+\### 📺 Channel Settings
+
+```python
+
+SOURCE\_CHANNELS = \[  # Where to FETCH reports FROM
+
+&nbsp;   {"id": -1001588470529, "name": "Channel Alpha"},
+
+&nbsp;   {"id": -1003025504126, "name": "Equity Research Reports"},
+
+]
+
+OUTPUT\_GROUP\_ID = -5205208069  # Where to SEND analysis TO
+
+```
+
+
+
+\### ⏰ Fetch Settings
+
+```python
+
+HOURS\_AGO = 50                    # Lookback window for messages
+
+MAX\_MESSAGES\_PER\_CHANNEL = 150    # Max messages to scan per channel
+
+DOWNLOAD\_FILES = True             # Download attachments (set False for metadata-only)
+
+VALID\_EXTENSIONS = \['.pdf', '.docx', '.xlsx', '.txt']  # File types to process
+
+```
+
+
+
+\### 🧠 Analysis Settings (Free-Tier Optimized)
+
+```python
+
+FILES\_TO\_ANALYZE = 2              # Max files to analyze per run (conservative)
+
+MAX\_PAGES\_PER\_FILE = 5            # Max PDF pages to extract (reduces token usage)
+
+CHUNK\_SIZE\_CHARS = 4000           # Text chunk size for large documents
+
+ENABLE\_REASONING = False          # Skip heavy reasoning mode on scheduled runs
+
+MAX\_RETRIES = 3                   # API call retry attempts
+
+RATE\_LIMIT\_BACKOFF = 10           # Seconds to wait when rate limited
+
+```
+
+
+
+\### 💾 Storage Settings
+
+```python
+
+SAVE\_TO\_DRIVE = True              # Save outputs to Google Drive
+
+DRIVE\_FOLDER\_ID = "1AbCd..."      # Target Drive folder ID
+
+MAX\_KNOWLEDGE\_ENTRIES = 25        # Max cached insights to retain
+
+```
+
+
+
+\### 🔄 Auto-Adjust for GitHub Actions
+
+```python
+
+\# When RUNNING\_IN\_GITHUB = True, bot auto-applies:
+
+FILES\_TO\_ANALYZE = min(FILES\_TO\_ANALYZE, 2)   # Cap at 2 for cron
+
+MAX\_PAGES\_PER\_FILE = min(MAX\_PAGES\_PER\_FILE, 5)
+
+ENABLE\_REASONING = False                       # Disable heavy reasoning
+
+```
+
+
+
+\### Override via Environment Variables (Optional)
+
+Set these in GitHub Secrets or local `.env`:
+
+```bash
+
+HOURS\_AGO=24
+
+FILES\_TO\_ANALYZE=1
+
+MAX\_PAGES\_PER\_FILE=3
+
+ENABLE\_REASONING=true
+
+RATE\_LIMIT\_BACKOFF=15
+
+```
+
+
+
+---
+
+
+
+\## 🛠️ Troubleshooting
+
+
+
+\### 🔍 Common Errors \& Fixes
+
+
+
+| Error | Likely Cause | Solution |
+
+|-------|-------------|----------|
+
+| `ModuleNotFoundError: No module named 'telethon'` | Missing dependency | Ensure `requirements.txt` is correct; check `pip install` step in logs |
+
+| `Authentication failed for Telegram` | Invalid session/API credentials | Regenerate Telegram credentials; verify `TELEGRAM\_STRING\_SESSION` format |
+
+| `google.auth.exceptions.DefaultCredentialsError` | Invalid service account JSON | Re-generate Google JSON key; ensure entire content (including `{}`) is in secret |
+
+| `Drive permission denied` | Folder not shared with service account | Share Drive folder with service account email (`xxx@xxx.iam.gserviceaccount.com`) |
+
+| `404 Model not found` | Deprecated model name | Update `build\_providers\_config()` in `equity\_bot.py` with current free models |
+
+| `Rate limit exceeded (429)` | Too frequent requests | Increase cron interval; reduce `FILES\_TO\_ANALYZE`; check provider dashboards for caps |
+
+| `Workflow timeout (180 min)` | Job exceeded time limit | Reduce `MAX\_PAGES\_PER\_FILE`; add early exits; optimize chunk size |
+
+| `No files found` | Channels empty or ID mismatch | Verify channel IDs include `-100` prefix; check bot has access to channels |
+
+| `Telegram message too long` | Output exceeds 4096 chars | Bot auto-splits messages; check `\_format\_output()` truncation logic |
+
+
+
+\### 🧪 Debug Mode
+
+Enable verbose logging via manual trigger:
+
+1\. Actions → "🚀 Equity Bot" → \*\*Run workflow\*\*
+
+2\. Check ✅ \*\*debug\_mode: true\*\*
+
+3\. Run → View expanded logs for step-by-step output
+
+
+
+\### 📤 View Logs \& Artifacts
+
+\- \*\*Success logs\*\*: Actions tab → Select run → Expand "Execute Equity Bot" step
+
+\- \*\*Failed runs\*\*: Actions tab → Failed run → Download "equity-bot-logs-XXX" artifact
+
+\- \*\*Local logs\*\*: Check `/tmp/equity-bot/` on runner (uploaded as artifact on failure)
+
+
+
+\### 🔄 Reset State (If Stuck)
+
+```bash
+
+\# 1. Clear cache (optional)
+
+\#    Delete knowledge\_cache.json from your Drive folder or local /tmp/
+
+
+
+\# 2. Revoke \& regenerate API keys (if auth issues persist)
+
+\#    OpenRouter: https://openrouter.ai/keys
+
+\#    NVIDIA: https://build.nvidia.com/profile
+
+\#    Groq: https://console.groq.com/keys
+
+\#    Telegram: https://my.telegram.org/auth
+
+
+
+\# 3. Update GitHub Secrets with new keys
+
+
+
+\# 4. Trigger manual test run
+
+```
+
+
+
+---
+
+
+
+\## ⚠️ Security Notice
+
+
+
+\### 🔐 Critical: Keys Shared in This Repository's History Are Compromised
+
+
+
+If you previously hardcoded API keys in any committed file or chat:
+
+1\. \*\*Revoke immediately\*\* at provider dashboards:
+
+&nbsp;  - \[OpenRouter Keys](https://openrouter.ai/keys)
+
+&nbsp;  - \[NVIDIA Profile](https://build.nvidia.com/profile)
+
+&nbsp;  - \[Groq Keys](https://console.groq.com/keys)
+
+&nbsp;  - \[Telegram Auth](https://my.telegram.org/auth)
+
+2\. \*\*Generate new keys\*\* and add to GitHub Secrets (NOT code)
+
+3\. \*\*Never commit\*\* `.env`, `secrets\*.env`, or hardcoded credentials
+
+
+
+\### ✅ Security Best Practices
+
+\- \[x] All credentials stored in GitHub Secrets (not code)
+
+\- \[x] `.gitignore` excludes sensitive files (`.env`, `\*.log`, `cache/`)
+
+\- \[x] Google Service Account has minimal `drive.file` scope
+
+\- \[x] Telegram bot uses read-only channel access + targeted group send
+
+\- \[ ] Rotate API keys quarterly (add calendar reminder)
+
+\- \[ ] Monitor provider dashboards for unusual usage
+
+
+
+\### 🚫 What NOT to Do
+
+```bash
+
+\# ❌ NEVER commit real credentials:
+
+git add .env  # ← Don't do this
+
+git commit -m "Add keys"  # ← Never
+
+
+
+\# ❌ NEVER paste keys in issues, PRs, or public chats
+
+\# ❌ NEVER use same keys for testing + production
+
+```
+
+
+
+---
+
+
+
+\## 🤝 Contributing
+
+
+
+Contributions welcome! Please follow these steps:
+
+
+
+1\. \*\*Fork\*\* the repository
+
+2\. \*\*Create a feature branch\*\*: `git checkout -b feat/your-feature`
+
+3\. \*\*Make changes\*\* + add tests if applicable
+
+4\. \*\*Run linting\*\* (optional but appreciated):
+
+&nbsp;  ```bash
+
+&nbsp;  pip install black flake8
+
+&nbsp;  black src/
+
+&nbsp;  flake8 src/
+
+&nbsp;  ```
+
+5\. \*\*Commit\*\* with clear message: `git commit -m "feat: add XYZ"`
+
+6\. \*\*Push\*\* to your fork: `git push origin feat/your-feature`
+
+7\. \*\*Open a Pull Request\*\* with description of changes
+
+
+
+\### 🧪 Testing Contributions
+
+\- Test locally with `.env` before submitting PR
+
+\- Ensure workflow passes with manual trigger
+
+\- Update `README.md` if adding new config options
+
+
+
+\### 📝 Code Style
+
+\- Follow \[PEP 8](https://peps.python.org/pep-0008/)
+
+\- Use type hints for function signatures
+
+\- Add docstrings for public functions/classes
+
+\- Keep functions focused (<50 lines ideal)
+
+
+
+---
+
+
+
+\## 📄 License
+
+
+
+Distributed under the \*\*MIT License\*\*. See `LICENSE` for details.
+
+
+
+```
+
+MIT License
+
+
+
+Copyright (c) 2026 Equity Bot Contributors
+
+
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+
+of this software and associated documentation files (the "Software"), to deal
+
+in the Software without restriction, including without limitation the rights
+
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+
+copies of the Software, and to permit persons to whom the Software is
+
+furnished to do so, subject to the following conditions:
+
+
+
+The above copyright notice and this permission notice shall be included in all
+
+copies or substantial portions of the Software.
+
+
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+
+SOFTWARE.
+
+```
+
+
+
+---
+
+
+
+\## 🔗 Resources
+
+
+
+\### 📚 Documentation
+
+| Resource | Link |
+
+|----------|------|
+
+| GitHub Actions Cron Syntax | https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule |
+
+| GitHub Secrets Guide | https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions |
+
+| Telethon Documentation | https://docs.telethon.dev |
+
+| Google Drive API Quickstart | https://developers.google.com/drive/api/quickstart/python |
+
+| OpenRouter Free Models | https://openrouter.ai/models?max\_price=0 |
+
+| NVIDIA NIM Models | https://build.nvidia.com/explore/discover |
+
+| Groq Models | https://console.groq.com/docs/models |
+
+
+
+\### 🛠️ Tools
+
+| Tool | Purpose | Link |
+
+|------|---------|------|
+
+| crontab.guru | Cron schedule tester \& converter | https://crontab.guru |
+
+| Telegram @userbotix\_bot | Generate Telethon session string | https://t.me/userbotix\_bot |
+
+| Google Cloud Console | Manage service accounts \& APIs | https://console.cloud.google.com |
+
+| JSON Formatter | Validate service account JSON | https://jsonformatter.org |
+
+
+
+\### 🆘 Support
+
+\- 🐛 \*\*Bug Reports\*\*: Open an \[Issue](https://github.com/YOUR\_USERNAME/equity-bot/issues)
+
+\- 💡 \*\*Feature Requests\*\*: Use \[Discussions](https://github.com/YOUR\_USERNAME/equity-bot/discussions)
+
+\- ❓ \*\*Questions\*\*: Tag with `question` in Issues or start a Discussion
+
+
+
+---
+
+
+
+> ⚠️ \*\*Disclaimer\*\*: This bot uses free-tier API limits. Usage is subject to each provider's Terms of Service. The authors are not responsible for account suspensions, rate limit penalties, or data loss. Use at your own risk.
+
+
+
+---
+
+
+
+\*\*🚀 Ready to deploy?\*\*  
+
+1\. Add your secrets to GitHub  
+
+2\. Commit \& push  
+
+3\. Trigger a manual test run  
+
+4\. Enable cron after verification  
+
+
+
+\*Happy analyzing!\* 📈🤖
+
+
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\src\config.py
+==========================================================================================
+
+# src/config.py
+# ════════════════════════════════════════════════════════════════════════════
+# ⚙️ Bot Configuration - Channel IDs, Limits, Settings
+# ════════════════════════════════════════════════════════════════════════════
+
+import os
+from pathlib import Path
+from datetime import timedelta
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📺 Telegram Channel Configuration (YOUR IDs)
+# ════════════════════════════════════════════════════════════════════════════
+
+# 📥 Source Channels: Where to FETCH reports FROM
+SOURCE_CHANNELS = [
+    {
+        "id": -1001588470529,      # ← Your Channel Alpha ID
+        "name": "Channel Alpha",    # ← Friendly name for logging
+    },
+    {
+        "id": -1003025504126,      # ← Your Equity Research Reports ID
+        "name": "Equity Research Reports",
+    },
+    # ➕ Add more channels here as needed:
+    # {"id": -100xxxxxxxxx, "name": "Another Channel"},
+]
+
+# 📤 Output Group: Where to SEND analysis TO
+OUTPUT_GROUP_ID = -5205208069  # ← Your target group ID
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# ⏰ Fetch Settings
+# ════════════════════════════════════════════════════════════════════════════
+
+# Lookback window: Fetch messages from last N hours
+HOURS_AGO = int(os.getenv("HOURS_AGO", "50"))
+
+# Max messages to scan per channel (prevents runaway API calls)
+MAX_MESSAGES_PER_CHANNEL = int(os.getenv("MAX_MESSAGES_PER_CHANNEL", "150"))
+
+# Enable file downloads (set False to only fetch metadata)
+DOWNLOAD_FILES = os.getenv("DOWNLOAD_FILES", "true").lower() == "true"
+
+# Valid file extensions to process
+VALID_EXTENSIONS = [".pdf", ".docx", ".xlsx", ".txt"]
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🧠 Analysis Settings (Free-Tier Optimized)
+# ════════════════════════════════════════════════════════════════════════════
+
+# Max files to analyze per run (conservative for free tiers)
+FILES_TO_ANALYZE = int(os.getenv("FILES_TO_ANALYZE", "2"))
+
+# Max pages to extract per PDF (reduces token usage)
+MAX_PAGES_PER_FILE = int(os.getenv("MAX_PAGES_PER_FILE", "5"))
+
+# Text chunk size for large documents (chars)
+CHUNK_SIZE_CHARS = int(os.getenv("CHUNK_SIZE_CHARS", "4000"))
+
+# Enable reasoning mode (uses more tokens, slower)
+ENABLE_REASONING = os.getenv("ENABLE_REASONING", "false").lower() == "true"
+
+# Max retry attempts per API call
+MAX_RETRIES = 3
+
+# Backoff seconds when rate limited
+RATE_LIMIT_BACKOFF = int(os.getenv("RATE_LIMIT_BACKOFF", "10"))
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 💾 Storage & Cache Settings
+# ════════════════════════════════════════════════════════════════════════════
+
+# Save analysis outputs to Google Drive
+SAVE_TO_DRIVE = os.getenv("SAVE_TO_DRIVE", "true").lower() == "true"
+
+# Target Drive folder ID (from URL: drive.google.com/drive/folders/XXX)
+DRIVE_FOLDER_ID = os.getenv("DRIVE_FOLDER_ID", "")
+
+# Local cache file path (for knowledge accumulation)
+CACHE_DIR = Path(os.getenv("CACHE_DIR", "/tmp/equity-bot/cache"))
+KNOWLEDGE_CACHE_FILE = CACHE_DIR / "knowledge_cache.json"
+MAX_KNOWLEDGE_ENTRIES = int(os.getenv("MAX_KNOWLEDGE_ENTRIES", "25"))
+
+# Local download directory for fetched files
+DOWNLOAD_DIR = Path(os.getenv("DOWNLOAD_DIR", "/tmp/equity-bot/downloads"))
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🔄 Runtime Mode Detection
+# ════════════════════════════════════════════════════════════════════════════
+
+# Detect if running in GitHub Actions vs local
+RUNNING_IN_GITHUB = os.getenv("GITHUB_ACTIONS", "false").lower() == "true"
+
+# Auto-adjust settings for GitHub Actions (conservative)
+if RUNNING_IN_GITHUB:
+    FILES_TO_ANALYZE = min(FILES_TO_ANALYZE, 2)  # Cap at 2 for cron runs
+    MAX_PAGES_PER_FILE = min(MAX_PAGES_PER_FILE, 5)
+    ENABLE_REASONING = False  # Disable heavy reasoning on scheduled runs
+    print(f"🔧 GitHub Actions mode: conservative settings applied")
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📋 Validation Helper
+# ════════════════════════════════════════════════════════════════════════════
+
+def validate_config():
+    """Check required config values at startup"""
+    errors = []
+    
+    if not SOURCE_CHANNELS:
+        errors.append("SOURCE_CHANNELS is empty — add at least one channel ID")
+    
+    for ch in SOURCE_CHANNELS:
+        if not isinstance(ch.get("id"), int):
+            errors.append(f"Channel ID must be integer: {ch}")
+    
+    if not isinstance(OUTPUT_GROUP_ID, int):
+        errors.append(f"OUTPUT_GROUP_ID must be integer: {OUTPUT_GROUP_ID}")
+    
+    if SAVE_TO_DRIVE and not DRIVE_FOLDER_ID:
+        errors.append("SAVE_TO_DRIVE=True but DRIVE_FOLDER_ID is empty")
+    
+    if errors:
+        print("❌ Configuration errors:")
+        for e in errors:
+            print(f"  • {e}")
+        return False
+    
+    print(f"✅ Config validated: {len(SOURCE_CHANNELS)} source channels, output: {OUTPUT_GROUP_ID}")
+    return True
+
+
+# test_channels.py (optional debug script)
+import asyncio
+from telethon import TelegramClient
+from telethon.sessions import StringSession
+from config import SOURCE_CHANNELS, OUTPUT_GROUP_ID, TELEGRAM_CREDS
+
+async def test():
+    client = TelegramClient(
+        StringSession(TELEGRAM_CREDS["session"]),
+        TELEGRAM_CREDS["api_id"],
+        TELEGRAM_CREDS["api_hash"]
+    )
+    await client.start()
+    
+    print("🔍 Testing channel access...")
+    for ch in SOURCE_CHANNELS:
+        try:
+            entity = await client.get_entity(ch["id"])
+            print(f"✅ {ch['name']}: {entity.title} (ID: {ch['id']})")
+        except Exception as e:
+            print(f"❌ {ch['name']}: {e}")
+    
+    try:
+        entity = await client.get_entity(OUTPUT_GROUP_ID)
+        print(f"✅ Output group: {entity.title} (ID: {OUTPUT_GROUP_ID})")
+    except Exception as e:
+        print(f"❌ Output group: {e}")
+    
+    await client.disconnect()
+
+if __name__ == "__main__":
+    asyncio.run(test())
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\src\equity_bot.py
+==========================================================================================
+
+#!/usr/bin/env python3
+# ════════════════════════════════════════════════════════════════════════════
+# 🤖 Equity Bot - Main Entry Point
+# 📁 Location: src/equity_bot.py
+# ════════════════════════════════════════════════════════════════════════════
+
+import os
+import sys
+import json
+import re
+import time
+import random
+import asyncio
+import requests
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🔐 CREDENTIAL LOADER
+# ════════════════════════════════════════════════════════════════════════════
+
+def load_credentials():
+    """Load credentials from environment variables (GitHub Secrets)"""
+    creds = {
+        "openrouter": os.getenv("OPENROUTER_API_KEY"),
+        "nvidia": os.getenv("NVIDIA_API_KEY"),
+        "groq": os.getenv("GROQ_KEY"),
+        "github": os.getenv("GITHUB_TOKEN"),
+        "telegram": {
+            "session": os.getenv("TELEGRAM_STRING_SESSION"),
+            "api_id": os.getenv("TELEGRAM_API_ID"),
+            "api_hash": os.getenv("TELEGRAM_API_HASH"),
+        },
+        "drive": {
+            "service_account": os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON"),
+            "folder_id": os.getenv("DRIVE_FOLDER_ID"),
+        }
+    }
+    
+    required = [
+        ("telegram.session", creds["telegram"]["session"]),
+        ("telegram.api_id", creds["telegram"]["api_id"]),
+        ("telegram.api_hash", creds["telegram"]["api_hash"]),
+    ]
+    
+    llm_providers = [
+        ("openrouter", creds["openrouter"]),
+        ("nvidia", creds["nvidia"]),
+        ("groq", creds["groq"]),
+    ]
+    
+    missing = [name for name, val in required if not val]
+    if missing:
+        print(f"❌ Missing required credentials: {', '.join(missing)}")
+        return None
+    
+    if not any(val for _, val in llm_providers):
+        print("❌ At least one LLM API key must be provided")
+        return None
+    
+    return creds
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 📦 IMPORTS - Local modules
+# ════════════════════════════════════════════════════════════════════════════
+
+from config import (
+    SOURCE_CHANNELS,
+    OUTPUT_GROUP_ID,
+    HOURS_AGO,
+    MAX_MESSAGES_PER_CHANNEL,
+    DOWNLOAD_FILES,
+    VALID_EXTENSIONS,
+    FILES_TO_ANALYZE,
+    MAX_PAGES_PER_FILE,
+    CHUNK_SIZE_CHARS,
+    ENABLE_REASONING,
+    MAX_RETRIES,
+    RATE_LIMIT_BACKOFF,
+    SAVE_TO_DRIVE,
+    DRIVE_FOLDER_ID,
+    DOWNLOAD_DIR,
+    CACHE_DIR,
+    KNOWLEDGE_CACHE_FILE,
+    MAX_KNOWLEDGE_ENTRIES,
+    RUNNING_IN_GITHUB,
+    validate_config,
+)
+
+from utils.pdf_extractor import extract_text_from_pdf, chunk_text_smart
+from utils.telegram_client import TelegramBot
+
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+import io
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🧠 GOOGLE DRIVE SERVICE
+# ════════════════════════════════════════════════════════════════════════════
+
+class DriveService:
+    def __init__(self, service_account_json: str, folder_id: str):
+        self.folder_id = folder_id
+        self.service = self._init_service(service_account_json)
+    
+    def _init_service(self, sa_json: str):
+        try:
+            creds = service_account.Credentials.from_service_account_info(
+                json.loads(sa_json),
+                scopes=["https://www.googleapis.com/auth/drive.file"]
+            )
+            return build("drive", "v3", credentials=creds)
+        except Exception as e:
+            print(f"⚠️ Drive init failed: {e}")
+            return None
+    
+    def upload_text(self, content: str, filename: str) -> str | None:
+        if not self.service:
+            return None
+        try:
+            file_metadata = {
+                "name": filename,
+                "parents": [self.folder_id] if self.folder_id else None,
+            }
+            media = MediaIoBaseUpload(
+                io.BytesIO(content.encode("utf-8")),
+                mimetype="text/markdown",
+                resumable=True
+            )
+            file = self.service.files().create(
+                body=file_metadata,
+                media_body=media,
+                fields="id,webViewLink"
+            ).execute()
+            print(f"💾 Uploaded: {file.get('webViewLink')}")
+            return file.get("id")
+        except Exception as e:
+            print(f"⚠️ Drive upload failed: {e}")
+            return None
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🧠 KNOWLEDGE CACHE
+# ════════════════════════════════════════════════════════════════════════════
+
+class KnowledgeCache:
+    def __init__(self, cache_path: Path, max_entries: int = 25):
+        self.cache_path = cache_path
+        self.max_entries = max_entries
+        self.data = self._load()
+    
+    def _load(self) -> dict:
+        try:
+            if self.cache_path.exists():
+                with open(self.cache_path, 'r') as f:
+                    return json.load(f)
+        except Exception as e:
+            print(f"⚠️ Cache load failed: {e}")
+        return {'entries': [], 'last_updated': None}
+    
+    def _save(self):
+        try:
+            self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+            self.data['last_updated'] = datetime.now().isoformat()
+            with open(self.cache_path, 'w') as f:
+                json.dump(self.data, f, indent=2)
+        except Exception as e:
+            print(f"⚠️ Cache save failed: {e}")
+    
+    def add_insight(self, filename: str, insights: list, channel: str = ""):
+        entry = {
+            'filename': filename,
+            'channel': channel,
+            'timestamp': datetime.now().isoformat(),
+            'insights': insights[:5]
+        }
+        self.data['entries'].append(entry)
+        if len(self.data['entries']) > self.max_entries:
+            self.data['entries'] = self.data['entries'][-self.max_entries:]
+        self._save()
+        print(f"💾 Cached {len(insights[:5])} insights from {filename}")
+    
+    def get_context(self, keywords: list = None, max_entries: int = 5, 
+                   channel_filter: str = None) -> str:
+        if not self.data['entries']:
+            return ""
+        entries = self.data['entries']
+        if channel_filter:
+            entries = [e for e in entries if e.get('channel') == channel_filter]
+        if keywords:
+            kw_lower = [k.lower() for k in keywords]
+            entries = [
+                e for e in entries
+                if any(
+                    kw in e['filename'].lower() or 
+                    any(kw in ins.lower() for ins in e['insights'])
+                    for kw in kw_lower
+                )
+            ]
+        selected = entries[-max_entries:] if entries else self.data['entries'][-max_entries:]
+        parts = []
+        for entry in selected:
+            tag = f"[{entry.get('channel', '?')}]" if entry.get('channel') else ""
+            parts.append(f"### {tag} {entry['filename']} ({entry['timestamp'][:10]})")
+            parts.extend([f"• {ins}" for ins in entry['insights']])
+            parts.append("")
+        return "\n".join(parts).strip()
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🧠 MULTI-PROVIDER CONFIGURATION
+# ════════════════════════════════════════════════════════════════════════════
+
+def build_providers_config(creds: dict) -> dict:
+    providers = {}
+    
+    if creds.get("openrouter"):
+        providers["openrouter"] = {
+            "enabled": True,
+            "base_url": "https://openrouter.ai/api/v1",
+            "api_key": creds["openrouter"],
+            "models": [
+                {"name": "google/gemma-2-9b-it:free", "rpm": 20, "priority": 1, "ctx": 8192},
+                {"name": "meta-llama/llama-3.2-3b-instruct:free", "rpm": 20, "priority": 2, "ctx": 8192},
+                {"name": "arcee-ai/trinity-large-preview:free", "rpm": 20, "priority": 3, "ctx": 16384, "reasoning": True},
+                {"name": "qwen/qwen-2.5-7b-instruct:free", "rpm": 20, "priority": 4, "ctx": 32768},
+                {"name": "microsoft/phi-3.5-mini-instruct:free", "rpm": 20, "priority": 5, "ctx": 128000},
+            ],
+            "headers": lambda key: {
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://github.com/equity-bot",
+                "X-Title": "Equity Analysis Bot",
+            }
+        }
+    
+    if creds.get("nvidia"):
+        providers["nvidia"] = {
+            "enabled": True,
+            "base_url": "https://integrate.api.nvidia.com/v1",
+            "api_key": creds["nvidia"],
+            "models": [
+                {"name": "meta/llama-3.1-8b-instruct", "rpm": 30, "priority": 1, "ctx": 8192},
+                {"name": "google/gemma-2-9b-it", "rpm": 25, "priority": 2, "ctx": 8192},
+                {"name": "mistralai/mistral-7b-instruct-v0.2", "rpm": 20, "priority": 3, "ctx": 32768},
+            ],
+            "headers": lambda key: {
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json"
+            }
+        }
+    
+    if creds.get("groq"):
+        providers["groq"] = {
+            "enabled": True,
+            "base_url": "https://api.groq.com/openai/v1",
+            "api_key": creds["groq"],
+            "models": [
+                {"name": "llama3-8b-8192", "rpm": 30, "priority": 1, "ctx": 8192},
+                {"name": "llama-3.1-8b-instant", "rpm": 30, "priority": 2, "ctx": 8192},
+                {"name": "gemma2-9b-it", "rpm": 25, "priority": 3, "ctx": 8192},
+                {"name": "mixtral-8x7b-32768", "rpm": 20, "priority": 4, "ctx": 32768},
+            ],
+            "headers": lambda key: {
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json"
+            }
+        }
+    
+    if creds.get("github"):
+        providers["github"] = {
+            "enabled": True,
+            "base_url": "https://models.inference.ai.azure.com",
+            "api_key": creds["github"],
+            "models": [
+                {"name": "Phi-3.5-mini-instruct", "rpm": 10, "priority": 1, "ctx": 128000},
+                {"name": "Mistral-Nemo-12B-Instruct", "rpm": 8, "priority": 2, "ctx": 128000},
+            ],
+            "headers": lambda key: {
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json"
+            }
+        }
+    
+    return providers
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🧠 GOD-MODE PROMPT
+# ════════════════════════════════════════════════════════════════════════════
+
+GOD_PROMPT = """
+🔮 ROLE: Autonomous Equity Oracle. MAX SIGNAL, ZERO NOISE.
+
+🎯 FRAMEWORK:
+1. SURFACE: Claims/numbers with [DATA]/[LOGIC]/[OPINION] tags
+2. CONTEXT: Consensus vs this view + confidence
+3. FIRST-PRINCIPLES: Truth + assumptions + falsification
+4. GOD-INSIGHTS: Non-obvious connections + second-order effects
+
+⚙️ RULES:
+• Cite page/section • Tag every insight • Remove fluff • Prioritize novelty • <1800 words
+
+📤 OUTPUT FORMAT:
+## 🎯 Core Thesis
+• [CONVICTION: H/M/L] One-sentence thesis • Biggest mispricing • Top catalyst
+
+## 📊 Layered Analysis
+### Facts • [Claims with refs]
+### Context • Consensus vs This • Attribution
+### First-Principles • Truth • Assumptions • Falsify
+### God-Insights [EXTRAPOLATION] • Non-obvious • Second-order • Asymmetric
+
+## ⚠️ Risks | Risk | Prob | Impact | Attribution |
+## 🚀 Actionable • View: [Long/Short/Neutral] + [Conviction%] • Triggers • Monitor: [3 metrics]
+## 🔄 Self-Correction • Assumptions • Uncertainty
+
+🔮 End: "Confidence: X%"
+"""
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🧠 MODEL ROUTER
+# ════════════════════════════════════════════════════════════════════════════
+
+class Router:
+    def __init__(self, providers: dict):
+        self.providers = {k: v for k, v in providers.items() if v.get('enabled')}
+        self.usage = {pid: {"req": 0, "err": 0, "last429": None} for pid in self.providers}
+        self.perf = {}
+        self.broken_models = set()
+        print(f"🔄 Router initialized: {list(self.providers.keys())}")
+    
+    def pick(self, task: str = "analysis", reasoning: bool = False) -> dict | None:
+        candidates = []
+        for pid, cfg in self.providers.items():
+            if self.usage[pid]["err"] > 5:
+                continue
+            if self.usage[pid]["last429"] and time.time() - self.usage[pid]["last429"] < RATE_LIMIT_BACKOFF:
+                continue
+            for model in cfg["models"]:
+                if reasoning and not model.get("reasoning"):
+                    continue
+                model_key = f"{pid}:{model['name']}"
+                if model_key in self.broken_models:
+                    continue
+                score = model.get("priority", 99)
+                if model_key in self.perf and self.perf[model_key].get("success_rate", 1) > 0.9:
+                    score -= 1
+                candidates.append({
+                    "provider": pid,
+                    "model": model["name"],
+                    "cfg": cfg,
+                    "model_cfg": model,
+                    "score": score,
+                    "ctx": model.get("ctx", 8192),
+                    "key": model_key
+                })
+        if not candidates:
+            print("⚠️ No available models")
+            return None
+        candidates.sort(key=lambda x: (x["score"], random.random()))
+        selected = candidates[0]
+        self.usage[selected["provider"]]["req"] += 1
+        print(f"🎯 {selected['provider']} → {selected['model']}")
+        return selected
+    
+    def record(self, pid: str, model: str, success: bool, latency_ms: float = None, error_code: str = None):
+        key = f"{pid}:{model}"
+        if key not in self.perf:
+            self.perf[key] = {"total": 0, "success": 0, "latencies": []}
+        stats = self.perf[key]
+        stats["total"] += 1
+        if success:
+            stats["success"] += 1
+            if latency_ms:
+                stats["latencies"].append(latency_ms)
+                stats["latencies"] = stats["latencies"][-20:]
+        else:
+            self.usage[pid]["err"] += 1
+            self.usage[pid]["last429"] = time.time()
+            if error_code == 404:
+                self.broken_models.add(key)
+                print(f"🚫 Marked broken (404): {key}")
+    
+    def stats(self) -> dict:
+        return {pid: {"requests": u["req"], "errors": u["err"]} for pid, u in self.usage.items()}
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🧠 ANALYZER
+# ════════════════════════════════════════════════════════════════════════════
+
+class Analyzer:
+    def __init__(self, router: Router, cache: KnowledgeCache = None, drive: DriveService = None):
+        self.router = router
+        self.cache = cache
+        self.drive = drive
+        self.session = requests.Session()
+        self.session.headers.update({"User-Agent": "EquityBot/2.0"})
+    
+    def _make_request(self, model_cfg: dict, messages: list, temperature: float = 0.1, 
+                     max_tokens: int = 2800, reasoning: bool = False) -> dict | None:
+        pid = model_cfg["provider"]
+        model = model_cfg["model"]
+        cfg = model_cfg["cfg"]
+        url = f"{cfg['base_url']}/chat/completions"
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "stream": False,
+        }
+        if pid == "openrouter" and reasoning and model_cfg["model_cfg"].get("reasoning"):
+            payload["reasoning"] = {"enabled": True}
+        headers = cfg["headers"](cfg["api_key"])
+        start_time = time.time()
+        try:
+            response = self.session.post(url, headers=headers, json=payload, timeout=120)
+            latency_ms = (time.time() - start_time) * 1000
+            if response.status_code == 404:
+                print(f"❌ Model not found (404): {pid}:{model}")
+                self.router.record(pid, model, False, latency_ms, error_code=404)
+                return None
+            if response.status_code == 429:
+                print(f"⚠️ Rate limited (429): {pid}:{model}")
+                self.router.record(pid, model, False, latency_ms, error_code=429)
+                return None
+            if response.status_code >= 400:
+                print(f"❌ HTTP {response.status_code}: {response.text[:150]}")
+                self.router.record(pid, model, False, latency_ms, error_code=str(response.status_code))
+                return None
+            data = response.json()
+            content = data["choices"][0]["message"]["content"]
+            reasoning_out = None
+            if pid == "openrouter":
+                msg = data["choices"][0]["message"]
+                reasoning_out = msg.get("reasoning_details") or msg.get("reasoning")
+            self.router.record(pid, model, True, latency_ms)
+            return {
+                "content": content,
+                "reasoning": reasoning_out,
+                "provider": pid,
+                "model": model
+            }
+        except requests.Timeout:
+            print(f"⏰ Timeout: {pid}:{model}")
+            self.router.record(pid, model, False, error_code="timeout")
+            return None
+        except Exception as e:
+            print(f"❌ Request error {pid}:{model}: {e}")
+            self.router.record(pid, model, False, error_code="exception")
+            return None
+    
+    def analyze_document(self, text: str, filename: str, context: str = "", 
+                        channel: str = "", task_type: str = "analysis") -> dict | None:
+        for attempt in range(MAX_RETRIES):
+            prefer_reasoning = ENABLE_REASONING and task_type == "deep_analysis"
+            model_cfg = self.router.pick(task_type, reasoning=prefer_reasoning)
+            if not model_cfg:
+                return None
+            max_chars = int(model_cfg["ctx"] * 3.5)
+            safe_text = text[:max_chars] + ("..." if len(text) > max_chars else "")
+            context_block = f"\n\n🧠 PAST INSIGHTS:\n{context}" if context else ""
+            channel_tag = f"[{channel}]" if channel else ""
+            user_prompt = f"""DOCUMENT: {filename} {channel_tag}
+CONTENT:
+{safe_text}
+{context_block}
+
+TASK: Apply the god-mode framework. Output ONLY the structured format. No preamble."""
+            messages = [
+                {"role": "system", "content": GOD_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ]
+            print(f"🧠 Attempt {attempt+1}: {model_cfg['provider']} → {model_cfg['model']}")
+            result = self._make_request(
+                model_cfg,
+                messages,
+                temperature=0.1,
+                max_tokens=2800,
+                reasoning=(ENABLE_REASONING and model_cfg["model_cfg"].get("reasoning", False))
+            )
+            if result and result["content"]:
+                print(f"✅ Success ({len(result['content']):,} chars)")
+                return {
+                    "content": self._format_output(result["content"]),
+                    "reasoning": result.get("reasoning"),
+                    "provider": model_cfg["provider"],
+                    "model": model_cfg["model"]
+                }
+            if attempt < MAX_RETRIES - 1:
+                wait_time = 2 ** attempt
+                print(f"⏳ Waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
+        print("❌ All attempts failed")
+        return None
+    
+    def _format_output(self, text: str) -> str:
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        text = text.replace('###', '**').replace('##', '🔹')
+        if not text.startswith("🔹"):
+            text = "🔹 " + text
+        if len(text) > 3800:
+            text = text[:3700] + "\n\n*...continued in attached file*"
+        return text.strip()
+    
+    def analyze_multiple_files(self, files_data: list) -> list:
+        print(f"\n🚀 ANALYZING {len(files_data)} files")
+        results = []
+        for i, file_data in enumerate(files_data, 1):
+            print(f"\n{'='*70}")
+            print(f"📄 {i}/{len(files_data)}: {file_data['filename']}")
+            print(f"{'='*70}")
+            keywords = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', file_data['filename'])[:5]
+            channel_name = file_data.get('channel_name')
+            past_context = self.cache.get_context(
+                keywords, 
+                max_entries=3, 
+                channel_filter=channel_name
+            ) if self.cache else ""
+            if len(file_data['text']) > CHUNK_SIZE_CHARS:
+                print(f"⚠️ Chunking ({len(file_data['text']):,} chars)...")
+                chunks = chunk_text_smart(file_data['text'], CHUNK_SIZE_CHARS)
+                print(f"✅ Split into {len(chunks)} chunks")
+                chunk_analyses = []
+                for j, chunk in enumerate(chunks[:2], 1):
+                    print(f"  🔹 Chunk {j}")
+                    chunk_result = self.analyze_document(
+                        chunk,
+                        f"{file_data['filename']} [Part {j}]",
+                        past_context if j == 1 else "",
+                        channel_name,
+                        task_type="chunk_analysis"
+                    )
+                    if chunk_result:
+                        chunk_analyses.append(chunk_result)
+                if chunk_analyses:
+                    synthesis = self._synthesize_chunks(chunk_analyses, file_data['filename'])
+                    if synthesis:
+                        results.append({
+                            'filename': file_data['filename'],
+                            'analysis': synthesis['content'],
+                            'channel': channel_name,
+                            'provider': synthesis['provider'],
+                            'model': synthesis['model']
+                        })
+            else:
+                result = self.analyze_document(
+                    file_data['text'],
+                    file_data['filename'],
+                    past_context,
+                    channel_name,
+                    task_type="deep_analysis"
+                )
+                if result:
+                    results.append({
+                        'filename': file_data['filename'],
+                        'analysis': result['content'],
+                        'channel': channel_name,
+                        'provider': result['provider'],
+                        'model': result['model']
+                    })
+            if results and self.cache:
+                latest = results[-1]['analysis']
+                insights = [
+                    line.strip() for line in latest.split('\n')
+                    if any(tag in line for tag in ['[EXTRAPOLATION]', '[DATA]', '🔹'])
+                ][:5]
+                if insights:
+                    self.cache.add_insight(file_data['filename'], insights, channel_name)
+            if i < len(files_data):
+                print(f"\n⏳ Cooldown {RATE_LIMIT_BACKOFF}s...")
+                time.sleep(RATE_LIMIT_BACKOFF)
+        return results
+    
+    def _synthesize_chunks(self, chunk_analyses: list, filename: str) -> dict | None:
+        if len(chunk_analyses) == 1:
+            return chunk_analyses[0]
+        combined = "\n\n".join(c['content'] for c in chunk_analyses)[:9000]
+        synthesis_prompt = f"""Synthesize these equity analysis fragments into one coherent report. 
+Remove duplicates. Highlight the 3 most important insights.
+
+{combined}"""
+        model_cfg = self.router.pick("synthesis", reasoning=False)
+        if not model_cfg:
+            print("⚠️ No model available for synthesis, returning first chunk")
+            return chunk_analyses[0]
+        messages = [
+            {"role": "system", "content": "Senior equity analyst. Synthesize concisely."},
+            {"role": "user", "content": synthesis_prompt}
+        ]
+        result = self._make_request(model_cfg, messages, temperature=0.1, max_tokens=2500)
+        if result and result["content"]:
+            return {
+                "content": self._format_output(result["content"]),
+                "provider": model_cfg["provider"],
+                "model": model_cfg["model"]
+            }
+        print("⚠️ Synthesis failed, using first chunk")
+        return chunk_analyses[0]
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🚀 MAIN PIPELINE
+# ════════════════════════════════════════════════════════════════════════════
+
+async def run_pipeline():
+    start_time = datetime.now()
+    print(f"\n{'='*80}")
+    print(f"🚀 EQUITY BOT STARTED: {start_time.isoformat()}")
+    print(f"{'='*80}")
+    
+    creds = load_credentials()
+    if not creds:
+        print("❌ Failed to load credentials — exiting")
+        return False
+    
+    if not validate_config():
+        return False
+    
+    print(f"\n💾 Initializing cache: {KNOWLEDGE_CACHE_FILE}")
+    cache = KnowledgeCache(KNOWLEDGE_CACHE_FILE, MAX_KNOWLEDGE_ENTRIES)
+    print(f"   Loaded {len(cache.data['entries'])} cached entries")
+    
+    providers = build_providers_config(creds)
+    print(f"🧠 Active providers: {list(providers.keys())}")
+    
+    router = Router(providers)
+    
+    drive = None
+    if SAVE_TO_DRIVE and creds["drive"]["service_account"] and creds["drive"]["folder_id"]:
+        drive = DriveService(creds["drive"]["service_account"], creds["drive"]["folder_id"])
+        print(f"💾 Drive service initialized")
+    
+    analyzer = Analyzer(router, cache, drive)
+    
+    tg_creds = creds["telegram"]
+    async with TelegramBot(
+        session=tg_creds["session"],
+        api_id=tg_creds["api_id"],
+        api_hash=tg_creds["api_hash"],
+        download_dir=DOWNLOAD_DIR if DOWNLOAD_FILES else None
+    ) as telegram:
+        
+        print(f"\n📥 STEP 1: Fetching files (last {HOURS_AGO} hours)...")
+        files = await telegram.fetch_files(
+            channels=SOURCE_CHANNELS,
+            hours_ago=HOURS_AGO,
+            max_messages=MAX_MESSAGES_PER_CHANNEL,
+            extensions=VALID_EXTENSIONS
+        )
+        
+        if not files:
+            print("\n❌ No files found — pipeline complete")
+            return True
+        
+        print(f"📊 Found {len(files)} files")
+        
+        print(f"\n📊 STEP 2: Selecting top {FILES_TO_ANALYZE} files...")
+        
+        def priority_score(f):
+            score = 0
+            name_lower = f['name'].lower()
+            priority_keywords = ['initiating', 'coverage', 'upgrade', 'downgrade', 'target', 'earnings']
+            score += sum(10 for kw in priority_keywords if kw in name_lower)
+            score += min(f['size_mb'], 10)
+            hours_old = (datetime.now(timezone.utc) - f['date_utc']).total_seconds() / 3600
+            if hours_old < 12:
+                score += 5
+            return score
+        
+        sorted_files = sorted(files, key=priority_score, reverse=True)
+        selected = sorted_files[:FILES_TO_ANALYZE]
+        
+        for i, f in enumerate(selected, 1):
+            print(f"   {i}. [{f['channel_name']}] {f['name']} ({f['size_mb']} MB)")
+        
+        print(f"\n📄 STEP 3: Extracting text...")
+        files_data = []
+        for f in selected:
+            if f.get('path') and Path(f['path']).exists():
+                text = extract_text_from_pdf(f['path'], max_pages=MAX_PAGES_PER_FILE)
+                if text and len(text) > 500:
+                    files_data.append({
+                        'text': text,
+                        'filename': f['name'],
+                        'path': f['path'],
+                        'channel_name': f['channel_name']
+                    })
+                    print(f"   ✅ {f['name']}: {len(text):,} chars")
+        
+        if not files_data:
+            print("\n❌ No extractable text — pipeline complete")
+            return True
+        
+        print(f"\n🧠 STEP 4: Analyzing documents...")
+        results = analyzer.analyze_multiple_files(files_data)
+        
+        print(f"\n{'='*80}")
+        print(f"📤 SENDING OUTPUT")
+        print(f"{'='*80}")
+        
+        for result in results:
+            if not result.get('analysis'):
+                continue
+            channel_tag = f"[{result.get('channel', '?')}] " if result.get('channel') else ""
+            provider_tag = f"[{result['provider']}:{result['model']}] "
+            full_output = f"{channel_tag}{provider_tag}{result['analysis']}"
+            print(f"\n📤 Sending to Telegram group {OUTPUT_GROUP_ID}...")
+            tg_success = await telegram.send_message(OUTPUT_GROUP_ID, full_output)
+            if SAVE_TO_DRIVE and drive and tg_success:
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                safe_name = re.sub(r'[^\w\s-]', '', result['filename'])[:35]
+                filename = f"Analysis_{result['provider']}_{safe_name}_{timestamp}.md"
+                print(f"💾 Uploading to Drive: {filename}")
+                drive.upload_text(result['analysis'], filename)
+        
+        elapsed = (datetime.now() - start_time).total_seconds()
+        print(f"\n{'='*80}")
+        print(f"✅ PIPELINE COMPLETE")
+        print(f"{'='*80}")
+        print(f"📊 Results: {len(results)}/{len(files_data)} files analyzed")
+        print(f"🔄 Provider usage: {router.stats()}")
+        print(f"💾 Cache entries: {len(cache.data['entries'])}")
+        print(f"⏱️ Runtime: {elapsed:.1f} seconds")
+        print(f"\n🎯 Next: Check Telegram group | Review Drive folder")
+        print(f"{'='*80}")
+        
+        return True
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🏁 ENTRY POINT
+# ════════════════════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    try:
+        success = asyncio.run(run_pipeline())
+        sys.exit(0 if success else 1)
+    except KeyboardInterrupt:
+        print("\n⚠️ Interrupted by user")
+        sys.exit(130)
+    except Exception as e:
+        print(f"\n❌ Fatal error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\src\requirements.txt
+==========================================================================================
+
+# src/requirements.txt
+telethon>=1.33.1
+python-dotenv>=1.0.1
+PyPDF2>=3.0.1
+openai>=1.12.0
+requests>=2.31.0
+google-auth>=2.28.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.118.0
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\src\utils\pdf_extractor.py
+==========================================================================================
+
+# src/utils/pdf_extractor.py
+"""Modular PDF text extraction for GitHub Actions environment"""
+
+import re
+from pathlib import Path
+from typing import Optional
+
+def extract_text_from_pdf(
+    pdf_path: str | Path, 
+    max_pages: Optional[int] = None
+) -> str:
+    """
+    Extract clean text from PDF file.
+    
+    Args:
+        pdf_path: Path to PDF file
+        max_pages: Limit extraction to N pages (None = all)
+    
+    Returns:
+        Extracted text string (empty string on error)
+    """
+    try:
+        import PyPDF2
+        
+        with open(pdf_path, 'rb') as f:
+            reader = PyPDF2.PdfReader(f)
+            pages = reader.pages[:max_pages] if max_pages else reader.pages
+            
+            text_parts = []
+            for page in pages:
+                page_text = page.extract_text() or ""
+                if page_text.strip():
+                    # Clean common PDF artifacts
+                    page_text = re.sub(r'Page \d+ of \d+', '', page_text)
+                    page_text = re.sub(r'www\.\S+', '', page_text)
+                    page_text = re.sub(r'\s+', ' ', page_text).strip()
+                    if len(page_text) > 100:
+                        text_parts.append(page_text)
+            
+            return " ".join(text_parts)
+            
+    except ImportError:
+        print("⚠️ PyPDF2 not installed - install with: pip install PyPDF2")
+        return ""
+    except Exception as e:
+        print(f"⚠️ PDF extraction error: {e}")
+        return ""
+
+
+def chunk_text_smart(
+    text: str, 
+    chunk_size: int = 6000, 
+    overlap: int = 300
+) -> list[str]:
+    """
+    Split text into chunks preserving semantic boundaries.
+    
+    Args:
+        text: Input text to chunk
+        chunk_size: Target characters per chunk
+        overlap: Characters to overlap between chunks
+    
+    Returns:
+        List of text chunks
+    """
+    if len(text) <= chunk_size:
+        return [text]
+    
+    chunks = []
+    start = 0
+    
+    while start < len(text):
+        end = min(start + chunk_size, len(text))
+        
+        # Try to break at sentence/paragraph boundaries
+        if end < len(text):
+            for sep in ['. ', '\n\n', '! ', '? ']:
+                pos = text.rfind(sep, start + chunk_size - 400, end)
+                if pos != -1:
+                    end = pos + len(sep)
+                    break
+        
+        chunk = text[start:end].strip()
+        if len(chunk) > 300:  # Skip tiny chunks
+            chunks.append(chunk)
+        
+        # Move start position with overlap
+        start = end - overlap if end < len(text) else len(text)
+    
+    return chunks
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\src\utils\telegram_client.py
+==========================================================================================
+
+# src/utils/telegram_client.py
+"""Modular Telegram client for fetching and sending messages"""
+
+import asyncio
+import re
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Optional
+
+from telethon import TelegramClient
+from telethon.sessions import StringSession
+
+
+class TelegramBot:
+    """Telegram client wrapper for equity bot"""
+    
+    def __init__(
+        self, 
+        session: str, 
+        api_id: str, 
+        api_hash: str,
+        download_dir: Optional[Path] = None
+    ):
+        self.session = session
+        self.api_id = int(api_id)
+        self.api_hash = api_hash
+        self.download_dir = download_dir or Path("/tmp/equity-bot/downloads")
+        self.download_dir.mkdir(parents=True, exist_ok=True)
+        self._client: Optional[TelegramClient] = None
+    
+    async def __aenter__(self):
+        self._client = TelegramClient(
+            StringSession(self.session), 
+            self.api_id, 
+            self.api_hash
+        )
+        await self._client.start()
+        return self
+    
+    async def __aexit__(self, *args):
+        if self._client:
+            await self._client.disconnect()
+    
+    async def fetch_files(
+        self,
+        channels: list[dict],
+        hours_ago: int = 50,
+        max_messages: int = 150,
+        extensions: list[str] = None
+    ) -> list[dict]:
+        """
+        Fetch files from Telegram channels.
+        
+        Args:
+            channels: List of {"id": int, "name": str}
+            hours_ago: Lookback window
+            max_messages: Max messages to scan per channel
+            extensions: Valid file extensions
+        
+        Returns:
+            List of file info dicts
+        """
+        extensions = extensions or ['.pdf', '.docx', '.xlsx', '.txt']
+        all_files = []
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours_ago)
+        
+        for ch in channels:
+            cid = ch['id']
+            cname = ch.get('name', f"Channel_{cid}")
+            print(f"📺 Fetching: {cname}")
+            
+            try:
+                channel = await self._client.get_entity(cid)
+                files_found = 0
+                
+                async for msg in self._client.iter_messages(channel, limit=max_messages):
+                    if not msg.date:
+                        continue
+                    
+                    # Timezone-aware comparison
+                    msg_utc = msg.date if msg.date.tzinfo else msg.date.replace(tzinfo=timezone.utc)
+                    if msg_utc < cutoff:
+                        continue
+                    
+                    if msg.file and msg.file.name:
+                        fname = msg.file.name.lower()
+                        if any(fname.endswith(ext) for ext in extensions):
+                            file_info = {
+                                'name': msg.file.name,
+                                'size_mb': round(msg.file.size / (1024*1024), 2),
+                                'date': msg.date,
+                                'date_utc': msg_utc,
+                                'path': None,
+                                'channel_name': cname,
+                                'channel_id': cid
+                            }
+                            all_files.append(file_info)
+                            files_found += 1
+                            print(f"  📎 {file_info['name']} ({file_info['size_mb']} MB)")
+                            
+                            # Download if enabled
+                            if self.download_dir:
+                                try:
+                                    file_info['path'] = await msg.download_media(
+                                        file=self.download_dir / msg.file.name
+                                    )
+                                except Exception as e:
+                                    print(f"    ❌ Download error: {e}")
+                
+                print(f"✅ {cname}: {files_found} files")
+                
+            except Exception as e:
+                print(f"❌ Error fetching {cname}: {e}")
+                continue
+        
+        # Sort by date (newest first)
+        return sorted(all_files, key=lambda x: x['date_utc'], reverse=True)
+    
+    async def send_message(
+        self,
+        group_id: int,
+        text: str,
+        parse_mode: str = 'md'
+    ) -> bool:
+        """
+        Send formatted message to Telegram group.
+        
+        Args:
+            group_id: Target group/channel ID
+            text: Message content
+            parse_mode: 'md', 'html', or None
+        
+        Returns:
+            True if sent successfully
+        """
+        try:
+            # Try multiple ID formats for robustness
+            entity = None
+            for test_id in [group_id, int(f"-100{abs(group_id)}"), str(group_id)]:
+                try:
+                    entity = await self._client.get_entity(test_id)
+                    break
+                except:
+                    continue
+            
+            if not entity:
+                print(f"❌ Could not resolve group {group_id}")
+                return False
+            
+            # Split long messages (Telegram limit: ~4096 chars)
+            max_len = 3800
+            parts = [text[i:i+max_len] for i in range(0, len(text), max_len)]
+            
+            for i, part in enumerate(parts, 1):
+                prefix = f"📊 Part {i}/{len(parts)}\n\n" if len(parts) > 1 else ""
+                await self._client.send_message(
+                    entity,
+                    prefix + part,
+                    parse_mode=parse_mode,
+                    link_preview=False
+                )
+                print(f"📤 Sent part {i}/{len(parts)}")
+                await asyncio.sleep(1.5)  # Avoid flood wait
+            
+            return True
+            
+        except Exception as e:
+            print(f"⚠️ Send failed: {e}")
+            return False
+
+==========================================================================================
+FILE: C:\Users\Sathanandh\Downloads\equity-bot\equity-bot\.github\workflows\equity-bot.yml
+==========================================================================================
+
+# .github/workflows/equity-bot.yml
+# ✅ This file orchestrates WHEN and HOW the bot runs
+# ✅ It passes secrets → env vars → your Python code
+# ✅ DO NOT REMOVE — this is the scheduler/runner config
+
+name: 🚀 Equity Bot - Scheduled Analysis
+
+on:
+  schedule:
+    - cron: '0 9,18 * * *'  # ← Cron schedule (UTC)
+  workflow_dispatch:         # ← Manual trigger for testing
+    inputs:
+      debug_mode:
+        description: 'Enable verbose logging'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  run-equity-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'src/requirements.txt'
+      
+      - name: 🔧 Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils tesseract-ocr
+      
+      - name: 📦 Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/requirements.txt
+      
+      - name: 🤖 Execute Equity Bot
+        env:
+          # ✅ Secrets → Environment Variables → Python os.getenv()
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          TELEGRAM_STRING_SESSION: ${{ secrets.TELEGRAM_STRING_SESSION }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID }}
+          DEBUG_MODE: ${{ inputs.debug_mode || 'false' }}
+        run: |
+          echo "🚀 Starting Equity Bot at $(date -u)"
+          python src/equity_bot.py  # ← This runs your Python code
+          echo "✅ Bot completed at $(date -u)"
+      
+      - name: 📤 Upload logs (if failed)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: equity-bot-logs-${{ github.run_number }}
+          path: /tmp/equity-bot/
+          retention-days: 7

@@ -133,36 +133,3 @@ def validate_config():
     print(f"✅ Config validated: {len(SOURCE_CHANNELS)} source channels, output: {OUTPUT_GROUP_ID}")
     return True
 
-
-# test_channels.py (optional debug script)
-import asyncio
-from telethon import TelegramClient
-from telethon.sessions import StringSession
-from config import SOURCE_CHANNELS, OUTPUT_GROUP_ID, TELEGRAM_CREDS
-
-async def test():
-    client = TelegramClient(
-        StringSession(TELEGRAM_CREDS["session"]),
-        TELEGRAM_CREDS["api_id"],
-        TELEGRAM_CREDS["api_hash"]
-    )
-    await client.start()
-    
-    print("🔍 Testing channel access...")
-    for ch in SOURCE_CHANNELS:
-        try:
-            entity = await client.get_entity(ch["id"])
-            print(f"✅ {ch['name']}: {entity.title} (ID: {ch['id']})")
-        except Exception as e:
-            print(f"❌ {ch['name']}: {e}")
-    
-    try:
-        entity = await client.get_entity(OUTPUT_GROUP_ID)
-        print(f"✅ Output group: {entity.title} (ID: {OUTPUT_GROUP_ID})")
-    except Exception as e:
-        print(f"❌ Output group: {e}")
-    
-    await client.disconnect()
-
-if __name__ == "__main__":
-    asyncio.run(test())
