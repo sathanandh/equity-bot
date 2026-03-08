@@ -21,7 +21,7 @@ OUTPUT_GROUP_ID = -1003723569586
 # ⏰ Fetch Settings
 # ════════════════════════════════════════════════════════════════════════════
 
-HOURS_AGO = int(os.getenv("HOURS_AGO", "500"))
+HOURS_AGO = int(os.getenv("HOURS_AGO", "100"))
 MAX_MESSAGES_PER_CHANNEL = int(os.getenv("MAX_MESSAGES_PER_CHANNEL", "150"))
 DOWNLOAD_FILES = os.getenv("DOWNLOAD_FILES", "true").lower() == "true"
 VALID_EXTENSIONS = [".pdf", ".docx", ".xlsx", ".txt"]
